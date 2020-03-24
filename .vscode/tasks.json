@@ -1,0 +1,39 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build apk",
+      "type": "shell",
+      "command": "flutter build apk",
+      "problemMatcher": [
+        "$dart-pub-build_runner"
+      ],
+      "isBackground": true
+    },
+    {
+      "label": "generate Moor code",
+      "type": "shell",
+      "command": "flutter packages pub run build_runner build",
+      "problemMatcher": [
+        "$dart-pub-build_runner"
+      ],
+      "isBackground": false,
+      "group": "build"
+    },
+    {
+      "label": "generate Moor code and watch",
+      "type": "shell",
+      "command": "flutter packages pub run build_runner watch",
+      "problemMatcher": [
+        "$dart-pub-build_runner"
+      ],
+      "isBackground": true,
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
