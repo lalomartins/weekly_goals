@@ -14,20 +14,26 @@ description: A new Flutter project.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^0.1.2
-
+  moor: # use the latest version
+  moor_ffi: # use the latest version
+  path_provider:
+  path:
+  provider: ^3.1.0
+  strings:
+  yaml: ^2.2.0
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  moor_generator: # use the latest version
+  build_runner:  
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
