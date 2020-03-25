@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../date_util.dart';
 import '../db.dart';
 import 'section_title.dart';
 
@@ -80,7 +81,7 @@ class GoalsForTheWeek extends StatelessWidget {
     final _dbProvider = Provider.of<EventDatabase>(context);
 
     return StreamBuilder<List<Event>>(
-    stream: _dbProvider.watchWeekEvents(weekStartsOn: MaterialLocalizations.of(context).firstDayOfWeekIndex, type: 'weekly goals'),
+    stream: _dbProvider.watchWeekEvents(weekStartsOn: weekStart(context), type: 'weekly goals'),
     builder: (context, snapshot) {
       if (snapshot.hasData)
         Goal.computeProgress(currentGoals, snapshot.data);
