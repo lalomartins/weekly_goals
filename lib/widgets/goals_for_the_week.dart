@@ -25,7 +25,26 @@ class Goal {
     dailyAmountMatters = other.dailyAmountMatters,
     currentProgress = resetProgress ? 0 : other.currentProgress;
 
-  static void computeProgress(List<Goal> goals, List<Event> events) {}
+  static void computeProgress(List<Goal> goals, List<Event> events) {
+    Map<String, Goal> map = Map();
+    Map<String, Set<int>> weekdayChecks = Map();
+    goals.forEach((goal) {
+      goal.currentProgress = 0;
+      map[goal.name] = goal;
+    });
+    events.forEach((event) {
+      final goal = map[event.name];
+      if (goal.dailyAmountMatters)
+        goal.currentProgress++;
+      else {
+        weekdayChecks.putIfAbsent(goal.name, () => Set());
+        if (!weekdayChecks[goal.name].contains(event.timestamp.weekday)) {
+          weekdayChecks[goal.name].add(event.timestamp.weekday);
+          goal.currentProgress++;
+        }
+      }
+    });
+  }
 
   static Map<String, List<Goal>> sortByCategory(List<Goal> goals) {
     Map<String, List<Goal>> map = Map();
@@ -45,11 +64,11 @@ final List<Goal> currentGoals = [
   Goal(name: '読書', category: '日本語', perWeek: 2),
   Goal(name: '音楽で勉強', category: '日本語', perWeek: null),
   Goal(name: '語彙勉強', category: '日本語', perWeek: 7, dailyAmountMatters: false),
-  Goal(name: 'fast', category: 'healthcare', perWeek: 3),
-  Goal(name: 'game dev', category: 'life goals', perWeek: 2),
+  Goal(name: 'fast', category: 'Healthcare', perWeek: 3),
+  Goal(name: 'game dev', category: 'Life goals', perWeek: 2),
 ];
 final sortedGoals = Goal.sortByCategory(currentGoals);
-final categories = sortedGoals.keys.toList()..sort();
+final categories = sortedGoals.keys.toList();
 
 class GoalsForTheWeek extends StatelessWidget {
   const GoalsForTheWeek({
@@ -61,7 +80,7 @@ class GoalsForTheWeek extends StatelessWidget {
     final _dbProvider = Provider.of<EventDatabase>(context);
 
     return StreamBuilder<List<Event>>(
-    stream: _dbProvider.watchRecentEvents(days: 7),
+    stream: _dbProvider.watchWeekEvents(weekStartsOn: MaterialLocalizations.of(context).firstDayOfWeekIndex, type: 'weekly goals'),
     builder: (context, snapshot) {
       if (snapshot.hasData)
         Goal.computeProgress(currentGoals, snapshot.data);
@@ -94,11 +113,20 @@ class GoalsForTheWeek extends StatelessWidget {
                 }
                 Goal goal = sortedGoals[categories[category]][index - categoryStart - 1];
                 if (goal != null) {
+                  Color color = Colors.black;
+                  if (goal.perWeek == null) {
+                    if (goal.currentProgress == 0) color = Colors.grey;
+                    else color = Colors.blue;
+                  } else {
+                    if (goal.currentProgress >= goal.perWeek) color = Colors.green;
+                    else color = Colors.orange;
+                  }
+                  final style = TextStyle(color: color);
                   return Padding(
                     padding: ListTileTheme.of(context).contentPadding ?? EdgeInsets.symmetric(horizontal: 16.0),
                     child: Row(
                       children: <Widget>[
-                        Text(goal.name),
+                        Text(goal.name, style: style),
                         Spacer(),
                         RichText(textAlign: TextAlign.right, text: TextSpan(
                           children: [
@@ -107,7 +135,7 @@ class GoalsForTheWeek extends StatelessWidget {
                             TextSpan(text: ('/'), style: TextStyle(fontWeight: FontWeight.bold)),
                             TextSpan(text: (goal.perWeek).toString()),
                           ]),
-                          style: Theme.of(context).textTheme.body1,
+                          style: style,
                         )),
                       ],
                     ),

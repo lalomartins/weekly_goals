@@ -52,6 +52,21 @@ class EventDatabase extends _$EventDatabase {
             [(u) => OrderingTerm(expression: u.id, mode: OrderingMode.desc)]))
       .watch();
 
+  Stream<List<Event>> watchWeekEvents(
+      {int weeksAgo = 0, int weekStartsOn = DateTime.sunday, type}) {
+    final now = DateTime.now();
+    final startOfWeek = DateTime(now.year, now.month, now.day).subtract(
+        Duration(days: (now.weekday - weekStartsOn) % 7 + weeksAgo * 7));
+    final query = select(events);
+    if (type == null)
+      query.where((t) => t.timestamp.isBiggerOrEqualValue(startOfWeek));
+    else
+      query.where((t) => t.timestamp.isBiggerOrEqualValue(startOfWeek) & t.type.equals(type));
+    query.orderBy(
+        [(u) => OrderingTerm(expression: u.id, mode: OrderingMode.desc)]);
+    return query.watch();
+  }
+
   Future<int> createEventFromMap(Map<String, dynamic> data) {
     bool copied = false;
     if (data['timestamp'] is DateTime) {
