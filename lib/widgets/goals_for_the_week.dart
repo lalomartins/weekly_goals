@@ -89,12 +89,11 @@ class GoalsForTheWeek extends StatelessWidget {
       return Column(
         children: <Widget>[
           Container(
-            height: 48,
             alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColorDark,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text('Goals', style: Theme.of(context).textTheme.caption),
             ),
-            child: Text('Goals for the week', style: Theme.of(context).primaryTextTheme.title),
           ),
           Expanded(
             child: ListView.builder(
