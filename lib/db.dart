@@ -64,7 +64,7 @@ class EventDatabase extends _$EventDatabase {
       query.where(
           (t) => t.timestamp.isBiggerOrEqualValue(sow) & t.type.equals(type));
     query.orderBy(
-        [(u) => OrderingTerm(expression: u.id, mode: OrderingMode.asc)]);
+        [(u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.asc)]);
     return query.watch();
   }
 
@@ -78,7 +78,7 @@ class EventDatabase extends _$EventDatabase {
       query.where(
           (t) => t.timestamp.isBiggerOrEqualValue(day) & t.timestamp.isSmallerThanValue(day.add(Duration(days: 1))) & t.type.equals(type));
     query.orderBy(
-        [(u) => OrderingTerm(expression: u.id, mode: OrderingMode.asc)]);
+        [(u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.asc)]);
     return query.watch();
   }
 
