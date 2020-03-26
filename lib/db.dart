@@ -68,6 +68,20 @@ class EventDatabase extends _$EventDatabase {
     return query.watch();
   }
 
+  Stream<List<Event>> watchDayEvents(
+      {DateTime day, String type}) {
+    final query = select(events);
+    // TODO actually if weeksAgo > 0 we want to also cap the upper bound
+    if (type == null)
+      query.where((t) => t.timestamp.isBiggerOrEqualValue(day) & t.timestamp.isSmallerThanValue(day.add(Duration(days: 1))));
+    else
+      query.where(
+          (t) => t.timestamp.isBiggerOrEqualValue(day) & t.timestamp.isSmallerThanValue(day.add(Duration(days: 1))) & t.type.equals(type));
+    query.orderBy(
+        [(u) => OrderingTerm(expression: u.id, mode: OrderingMode.desc)]);
+    return query.watch();
+  }
+
   Future<int> createEventFromMap(Map<String, dynamic> data) {
     bool copied = false;
     if (data['timestamp'] is DateTime) {

@@ -20,6 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  intl: ^0.16.1
   moor: # use the latest version
   moor_ffi: # use the latest version
   path_provider:

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
+import '../db.dart';
 import 'goals_for_the_week.dart';
 
 class Calendar extends StatelessWidget {
@@ -83,6 +86,8 @@ const Map<int, String> youbi = {
   DateTime.saturday: '土',
 };
 
+final timeFormat = DateFormat.Hms();
+
 class CalendarDay extends StatelessWidget {
   final DateTime day;
   const CalendarDay({
@@ -92,18 +97,70 @@ class CalendarDay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: <Widget>[
-      Container(
-        height: 48,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: Theme.of(context).primaryColorDark,
-        ),
-        // Eventually we want to use local formats, but for now since I like it it Japanese,
-        // until I add a locale override feature or something, I'll hardcode it
-        child: Text('${youbi[day.weekday]} ${day.day}',
-            style: Theme.of(context).primaryTextTheme.title),
-      ),
-    ]);
+    final _dbProvider = Provider.of<EventDatabase>(context);
+
+    return StreamBuilder<List<Event>>(
+      stream: _dbProvider.watchDayEvents(day: day, type: 'weekly goals'),
+      initialData: [],
+      builder: (context, snapshot) {
+        final events = snapshot.data ?? [];
+        return Column(children: <Widget>[
+          Container(
+            height: 48,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColorDark,
+            ),
+            // Eventually we want to use local formats, but for now since I like it it Japanese,
+            // until I add a locale override feature or something, I'll hardcode it
+            child: Text('${youbi[day.weekday]} ${day.day}',
+                style: Theme.of(context).primaryTextTheme.title),
+          ),
+          Expanded(
+            child: ListView(
+              children: events
+                  .map((event) => Column(
+                        children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Row(children: <Widget>[
+                                  Text(event.name,
+                                      style: TextStyle(fontSize: 18)),
+                                  Spacer(),
+                                  Text(
+                                      timeFormat.format(event.timestamp) +
+                                          (event.realTime ? '' : ' (recorded)'),
+                                      style: TextStyle(
+                                          fontSize: 10,
+                                          fontStyle: FontStyle.italic)),
+                                ]),
+                              )
+                            ] +
+                            ((event.description != null &&
+                                    event.description.isNotEmpty)
+                                ? [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                      child: Row(
+                                        children: <Widget>[
+                                          Text(
+                                            event.description,
+                                            softWrap: true,
+                                            // textAlign: TextAlign.start,
+                                            maxLines: 3,
+                                            overflow: TextOverflow.fade,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ]
+                                : []),
+                      ))
+                  .toList(),
+            ),
+          ),
+        ]);
+      },
+    );
   }
 }
