@@ -19,12 +19,12 @@ class CalendarPage extends StatelessWidget {
     // until I add a locale override feature or something, I'll hardcode it
     if (sow.year != eow.year)
       weekFormatted =
-          '${sow.year}年${sow.month}月${sow.day} — ${eow.year}年${eow.month}月${eow.day}';
+          '${sow.year}年${sow.month}月${sow.day} — ${eow.year}年${eow.month}月${eow.day}日';
     else if (sow.month != eow.month)
       weekFormatted =
-          '${sow.year}年${sow.month}月${sow.day} — ${eow.month}月${eow.day}';
+          '${sow.year}年${sow.month}月${sow.day}日 — ${eow.month}月${eow.day}日';
     else
-      weekFormatted = '${sow.year}年${sow.month}月${sow.day} — ${eow.day}';
+      weekFormatted = '${sow.year}年${sow.month}月${sow.day} — ${eow.day}日';
     return Scaffold(
       appBar: AppBar(
         title: Text('Week of ' + weekFormatted),
