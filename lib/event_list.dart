@@ -6,8 +6,9 @@ import 'widgets/event_card.dart';
 
 class EventList extends StatelessWidget {
   final bool primary;
+  final bool popOnNav;
 
-  EventList({this.primary = false});
+  EventList({this.primary = false, this.popOnNav = false});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +29,7 @@ class EventList extends StatelessWidget {
           return ListView.builder(
             primary: primary,
             itemCount: events.length,
-            itemBuilder: (context, index) => EventCard(event: events[index]),
+            itemBuilder: (context, index) => EventCard(event: events[index], onNav: popOnNav ? () {Navigator.pop(context);} : null),
           );
         });
   }

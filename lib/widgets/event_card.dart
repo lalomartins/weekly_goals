@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import '../db.dart';
@@ -5,9 +7,11 @@ import '../db.dart';
 class EventCard extends StatefulWidget {
   EventCard({
     @required this.event,
+    this.onNav,
   }) : super(key: ObjectKey(event.id));
 
   final Event event;
+  final void Function() onNav;
 
   @override
   _EventCardState createState() => _EventCardState();
@@ -78,9 +82,14 @@ class _EventCardState extends State<EventCard> {
                   Icons.content_copy,
                   size: 32.0,
                 ),
-                onPressed: () => Navigator.pushNamed(context, 'add',
-                  arguments: widget.event,
-                ),
+                onPressed: () {
+                  if (widget.onNav != null) widget.onNav();
+                  Navigator.pushNamed(
+                    context,
+                    'add',
+                    arguments: widget.event,
+                  );
+                },
               ),
             ),
           ],

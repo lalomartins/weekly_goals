@@ -30,7 +30,7 @@ class CalendarPage extends StatelessWidget {
         title: Text('Week of ' + weekFormatted),
       ),
       body: Calendar(start: sow),
-      endDrawer: DrawerOverlay(drawerContent: EventList()),
+      endDrawer: DrawerOverlay(drawerContent: EventList(popOnNav: true)),
     );
   }
 }
