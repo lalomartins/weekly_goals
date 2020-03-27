@@ -140,15 +140,18 @@ class CalendarDay extends StatelessWidget {
                                     event.description.isNotEmpty)
                                 ? [
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0, vertical: 4.0),
                                       child: Row(
                                         children: <Widget>[
-                                          Text(
-                                            event.description,
-                                            softWrap: true,
-                                            // textAlign: TextAlign.start,
-                                            maxLines: 3,
-                                            overflow: TextOverflow.fade,
+                                          Flexible(
+                                            child: Text(
+                                              event.description,
+                                              softWrap: true,
+                                              // textAlign: TextAlign.start,
+                                              maxLines: 3,
+                                              overflow: TextOverflow.fade,
+                                            ),
                                           ),
                                         ],
                                       ),
