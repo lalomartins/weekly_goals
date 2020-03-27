@@ -79,6 +79,7 @@ class GoalsForTheWeek extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _dbProvider = Provider.of<EventDatabase>(context);
+    final _weekDone = weekOffset(context) / 7;
 
     return StreamBuilder<List<Event>>(
     stream: _dbProvider.watchWeekEvents(weekStartsOn: weekStart(context), type: 'weekly goals'),
@@ -118,8 +119,14 @@ class GoalsForTheWeek extends StatelessWidget {
                     if (goal.currentProgress == 0) color = Colors.grey;
                     else color = Colors.blue;
                   } else {
+                    final progressRatio = goal.currentProgress / goal.perWeek;
+                    final progressLevel = progressRatio - _weekDone;
+                    print('Progress for ${goal.name} is ${goal.currentProgress}/${goal.perWeek}; ratio is ${progressRatio}, level is ${progressLevel}');
                     if (goal.currentProgress >= goal.perWeek) color = Colors.green;
-                    else color = Colors.orange;
+                    else if (progressLevel > 0) color = Colors.black;
+                    else if (progressLevel >= -(1/7)) color = Colors.yellow.shade700;
+                    else if (progressLevel > -0.5) color = Colors.orange.shade700;
+                    else color = Colors.red;
                   }
                   final style = TextStyle(color: color);
                   return Padding(
