@@ -1,0 +1,7 @@
+CREATE TABLE cached_goals (
+    id INT NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    category TEXT NOT NULL,
+    per_week INT,
+    daily_amount_matters BOOL DEFAULT 1
+);

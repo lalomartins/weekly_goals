@@ -8,7 +8,8 @@ import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 
 import 'date_util.dart';
-import 'model/event.dart';
+import 'model/goal.dart';
+export 'model/goal.dart' show Goal;
 
 part 'db.g.dart';
 
@@ -23,23 +24,34 @@ LazyDatabase _openConnection() {
   });
 }
 
-@UseMoor(tables: [Events])
-class EventDatabase extends _$EventDatabase {
-  EventDatabase() : super(_openConnection());
+@UseMoor(
+  include: {'model/event.moor', 'model/goal.moor'},
+)
+class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
+  WeeklyGoalsDatabase() : super(_openConnection());
 
   @override
   int get schemaVersion => 1;
 
   // @override
   // MigrationStrategy get migration => MigrationStrategy(
-  //   onCreate: (Migrator m) {
-  //     return m.createAll();
-  //   },
-  //   onUpgrade: (Migrator m, int from, int to) async {
-  //     if (from == 1) {
-  //     }
-  //   }
-  // );
+  //       onCreate: (Migrator m) {
+  //         return m.createAll();
+  //       },
+  //       onUpgrade: (Migrator m, int from, int to) async {
+  //         if (from == 1) {
+  //           m.createTable(cachedGoals);
+  //         }
+  //       },
+  //       beforeOpen: (details) async {
+  //         final goalsCount =
+  //             await customSelectQuery('select count() as c from cached_goals')
+  //                 .getSingle();
+  //         if (goalsCount.data['c'] == 0) {
+  //           // insert stuff
+  //         }
+  //       },
+  //     );
 
   Stream<List<Event>> get watchAllEvents => (select(events)
         ..orderBy(
@@ -68,15 +80,18 @@ class EventDatabase extends _$EventDatabase {
     return query.watch();
   }
 
-  Stream<List<Event>> watchDayEvents(
-      {DateTime day, String type}) {
+  Stream<List<Event>> watchDayEvents({DateTime day, String type}) {
     final query = select(events);
     // TODO actually if weeksAgo > 0 we want to also cap the upper bound
     if (type == null)
-      query.where((t) => t.timestamp.isBiggerOrEqualValue(day) & t.timestamp.isSmallerThanValue(day.add(Duration(days: 1))));
+      query.where((t) =>
+          t.timestamp.isBiggerOrEqualValue(day) &
+          t.timestamp.isSmallerThanValue(day.add(Duration(days: 1))));
     else
-      query.where(
-          (t) => t.timestamp.isBiggerOrEqualValue(day) & t.timestamp.isSmallerThanValue(day.add(Duration(days: 1))) & t.type.equals(type));
+      query.where((t) =>
+          t.timestamp.isBiggerOrEqualValue(day) &
+          t.timestamp.isSmallerThanValue(day.add(Duration(days: 1))) &
+          t.type.equals(type));
     query.orderBy(
         [(u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.asc)]);
     return query.watch();
@@ -103,4 +118,11 @@ class EventDatabase extends _$EventDatabase {
     var ec = Event.fromJson(data).createCompanion(true);
     return into(events).insert(ec);
   }
+
+  Stream<List<Goal>> watchCurrentGoals() => (select(cachedGoals)
+        ..orderBy(
+            [(u) => OrderingTerm(expression: u.name, mode: OrderingMode.asc)])
+            )
+      .map((cached) => Goal.copy(cached))
+      .watch();
 }

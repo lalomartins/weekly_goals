@@ -12,7 +12,7 @@ class EventList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _dbProvider = Provider.of<EventDatabase>(context);
+    final _dbProvider = Provider.of<WeeklyGoalsDatabase>(context);
 
     return StreamBuilder<List<Event>>(
         stream: _dbProvider.watchRecentEvents(days: 7),

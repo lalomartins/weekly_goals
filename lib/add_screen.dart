@@ -134,7 +134,7 @@ class _AddEventFormState extends State<AddEventForm> {
                     Scaffold.of(context).showSnackBar(
                         SnackBar(content: Text('Processing Data')));
                     try {
-                      Provider.of<EventDatabase>(context)
+                      Provider.of<WeeklyGoalsDatabase>(context)
                           .createEventFromMap(event);
                       Navigator.pop(context);
                       Scaffold.of(context).showSnackBar(SnackBar(

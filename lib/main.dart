@@ -14,8 +14,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
-          Provider<EventDatabase>(
-            create: (_) => EventDatabase(),
+          Provider<WeeklyGoalsDatabase>(
+            create: (_) => WeeklyGoalsDatabase(),
           ),
         ],
         child: MaterialApp(

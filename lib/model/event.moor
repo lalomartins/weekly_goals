@@ -1,0 +1,10 @@
+CREATE TABLE events (
+  -- TODO: timezone, uuid
+  id INT NOT NULL PRIMARY KEY AUTOINCREMENT,
+  type TEXT NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  timestamp DATETIME NOT NULL,
+  real_time BOOL NOT NULL DEFAULT 1,
+  additional TEXT NOT NULL DEFAULT ''
+);
