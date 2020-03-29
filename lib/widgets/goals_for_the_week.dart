@@ -18,9 +18,8 @@ class GoalsForTheWeek extends StatelessWidget {
 
     return StreamBuilder<List<Goal>>(
         stream: _dbProvider.watchCurrentGoals(),
-        initialData: [],
         builder: (context, goalsSnapshot) {
-          final currentGoals = goalsSnapshot.data;
+          final currentGoals = goalsSnapshot.data ?? [];
           final sortedGoals = Goal.sortByCategory(currentGoals);
           final categories = sortedGoals.keys.toList();
 
