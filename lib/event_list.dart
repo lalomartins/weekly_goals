@@ -15,7 +15,7 @@ class EventList extends StatelessWidget {
     final _dbProvider = Provider.of<WeeklyGoalsDatabase>(context);
 
     return StreamBuilder<List<Event>>(
-        stream: _dbProvider.watchRecentEvents(days: 7),
+        stream: _dbProvider.watchRecentEvents(days: 30),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Align(

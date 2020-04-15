@@ -49,6 +49,7 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
   //                 .getSingle();
   //         if (goalsCount.data['c'] == 0) {
   //           // insert stuff
+  //           // earliest event: 2020-03-19 19:31:51.000
   //         }
   //       },
   //     );
