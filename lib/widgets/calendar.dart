@@ -111,7 +111,7 @@ class CalendarDay extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColorDark,
             ),
-            // Eventually we want to use local formats, but for now since I like it it Japanese,
+            // Eventually we want to use local formats, but for now since I like it in Japanese,
             // until I add a locale override feature or something, I'll hardcode it
             child: Text('${youbi[day.weekday]} ${day.day}',
                 style: Theme.of(context).primaryTextTheme.title),
@@ -125,13 +125,13 @@ class CalendarDay extends StatelessWidget {
                                 padding: const EdgeInsets.all(4.0),
                                 child: Row(children: <Widget>[
                                   Text(event.name,
-                                      style: TextStyle(fontSize: 18)),
+                                      style: TextStyle(fontSize: 15)),
                                   Spacer(),
                                   Text(
                                       timeFormat.format(event.timestamp) +
                                           (event.realTime ? '' : ' (recorded)'),
                                       style: TextStyle(
-                                          fontSize: 10,
+                                          fontSize: 8,
                                           fontStyle: FontStyle.italic)),
                                 ]),
                               )
