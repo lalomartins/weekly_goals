@@ -14,7 +14,7 @@ class GoalsForTheWeek extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _dbProvider = Provider.of<WeeklyGoalsDatabase>(context);
-    final _weekDone = weekOffset(context) / 7;
+    final _weekDone = weekOffset() / 7;
 
     return StreamBuilder<List<Goal>>(
         stream: _dbProvider.watchCurrentGoals(),
@@ -24,8 +24,7 @@ class GoalsForTheWeek extends StatelessWidget {
           final categories = sortedGoals.keys.toList();
 
           return StreamBuilder<List<Event>>(
-              stream: _dbProvider.watchWeekEvents(
-                  weekStartsOn: weekStart(context), type: 'weekly goals'),
+              stream: _dbProvider.watchWeekEvents(type: 'weekly goals'),
               builder: (context, eventsSnapshot) {
                 if (eventsSnapshot.hasData && currentGoals.length != 0)
                   Goal.computeProgress(currentGoals, eventsSnapshot.data);

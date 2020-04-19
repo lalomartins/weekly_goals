@@ -12,7 +12,7 @@ class CalendarPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sow = startOfWeek(weekStartsOn: weekStart(context));
+    final sow = startOfWeek();
     final eow = sow.add(Duration(days: 6));
     String weekFormatted;
     // Eventually we want to use local formats, but for now since I like it it Japanese,

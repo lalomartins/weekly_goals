@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 
+import 'config.dart';
 import 'date_util.dart';
 import 'model/goal.dart';
 export 'model/goal.dart' show Goal;
@@ -67,8 +68,8 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
       .watch();
 
   Stream<List<Event>> watchWeekEvents(
-      {int weeksAgo = 0, int weekStartsOn, String type}) {
-    final sow = startOfWeek(weekStartsOn: weekStartsOn, weeksAgo: weeksAgo);
+      {int weeksAgo = 0, String type}) {
+    final sow = startOfWeek(weeksAgo: weeksAgo);
     final query = select(events);
     // TODO actually if weeksAgo > 0 we want to also cap the upper bound
     if (type == null)

@@ -1,13 +1,10 @@
-import 'package:flutter/material.dart';
+import 'config.dart';
 
-int weekStart(BuildContext context) =>
-    MaterialLocalizations.of(context).firstDayOfWeekIndex;
+int weekOffset([DateTime when]) =>
+    ((when ?? DateTime.now()).weekday - config.weekStartsOn) % 7;
 
-int weekOffset(BuildContext context, [DateTime when]) =>
-    ((when ?? DateTime.now()).weekday - MaterialLocalizations.of(context).firstDayOfWeekIndex) % 7;
-
-DateTime startOfWeek({int weeksAgo = 0, int weekStartsOn = DateTime.sunday}) {
+DateTime startOfWeek({int weeksAgo = 0}) {
   final now = DateTime.now();
   return DateTime(now.year, now.month, now.day).subtract(
-      Duration(days: (now.weekday - weekStartsOn) % 7 + weeksAgo * 7));
+      Duration(days: (now.weekday - config.weekStartsOn) % 7 + weeksAgo * 7));
 }
