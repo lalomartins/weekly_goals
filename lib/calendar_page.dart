@@ -5,14 +5,40 @@ import 'event_list.dart';
 import 'widgets/calendar.dart';
 import 'widgets/drawer_overlay.dart';
 
-class CalendarPage extends StatelessWidget {
+class CalendarPage extends StatefulWidget {
   const CalendarPage({
     Key key,
   }) : super(key: key);
 
   @override
+  _CalendarPageState createState() => _CalendarPageState();
+}
+
+class _CalendarPageState extends State<CalendarPage> {
+  int weekOffset = 0;
+  static final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+
+  void previousWeek() {
+    setState(() {
+      weekOffset -= 1;
+    });
+  }
+
+  void nextWeek() {
+    setState(() {
+      weekOffset += 1;
+    });
+  }
+
+  void resetWeek() {
+    setState(() {
+      weekOffset = 0;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final sow = startOfWeek();
+    final sow = startOfWeek().add(Duration(days: weekOffset * 7));
     final eow = sow.add(Duration(days: 6));
     String weekFormatted;
     // Eventually we want to use local formats, but for now since I like it it Japanese,
@@ -26,10 +52,27 @@ class CalendarPage extends StatelessWidget {
     else
       weekFormatted = '${sow.year}年${sow.month}月${sow.day} — ${eow.day}日';
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Week of ' + weekFormatted),
+        actions: weekOffset == 0
+            ? <Widget>[
+                IconButton(
+                    icon: Icon(Icons.arrow_left), onPressed: previousWeek),
+                IconButton(
+                    icon: Icon(Icons.list),
+                    onPressed: () => _scaffoldKey.currentState.openEndDrawer()),
+              ]
+            : <Widget>[
+                IconButton(
+                    icon: Icon(Icons.arrow_left), onPressed: previousWeek),
+                IconButton(
+                    icon: Icon(Icons.restore), onPressed: resetWeek),
+                IconButton(
+                    icon: Icon(Icons.arrow_right), onPressed: nextWeek),
+              ],
       ),
-      body: Calendar(start: sow),
+      body: Calendar(start: sow, weeksAgo: -weekOffset),
       endDrawer: DrawerOverlay(drawerContent: EventList(popOnNav: true)),
     );
   }

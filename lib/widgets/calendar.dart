@@ -4,12 +4,15 @@ import 'package:provider/provider.dart';
 
 import '../db.dart';
 import 'goals_for_the_week.dart';
+import 'mini_week_report.dart';
 
 class Calendar extends StatelessWidget {
   final DateTime start;
+  final int weeksAgo;
   const Calendar({
     Key key,
     this.start,
+    this.weeksAgo,
   }) : super(key: key);
 
   @override
@@ -20,7 +23,7 @@ class Calendar extends StatelessWidget {
           flex: 1,
           child: Row(
             children: <Widget>[
-              Flexible(flex: 1, child: GoalsForTheWeek()),
+              Flexible(flex: 1, child: (weeksAgo != 0) ? MiniWeekReport(start: start, weeksAgo: weeksAgo) : GoalsForTheWeek()),
               Container(
                   decoration: BoxDecoration(
                       border: BorderDirectional(start: BorderSide()))),

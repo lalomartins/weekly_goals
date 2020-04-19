@@ -67,16 +67,18 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
             [(u) => OrderingTerm(expression: u.id, mode: OrderingMode.desc)]))
       .watch();
 
-  Stream<List<Event>> watchWeekEvents(
-      {int weeksAgo = 0, String type}) {
+  Stream<List<Event>> watchWeekEvents({int weeksAgo = 0, String type}) {
     final sow = startOfWeek(weeksAgo: weeksAgo);
     final query = select(events);
-    // TODO actually if weeksAgo > 0 we want to also cap the upper bound
     if (type == null)
-      query.where((t) => t.timestamp.isBiggerOrEqualValue(sow));
+      query.where((t) =>
+          t.timestamp.isBiggerOrEqualValue(sow) &
+          t.timestamp.isSmallerThanValue(sow.add(Duration(days: 7))));
     else
-      query.where(
-          (t) => t.timestamp.isBiggerOrEqualValue(sow) & t.type.equals(type));
+      query.where((t) =>
+          t.timestamp.isBiggerOrEqualValue(sow) &
+          t.timestamp.isSmallerThanValue(sow.add(Duration(days: 7))) &
+          t.type.equals(type));
     query.orderBy(
         [(u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.asc)]);
     return query.watch();
@@ -84,7 +86,6 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
 
   Stream<List<Event>> watchDayEvents({DateTime day, String type}) {
     final query = select(events);
-    // TODO actually if weeksAgo > 0 we want to also cap the upper bound
     if (type == null)
       query.where((t) =>
           t.timestamp.isBiggerOrEqualValue(day) &
@@ -123,8 +124,7 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
 
   Stream<List<Goal>> watchCurrentGoals() => (select(cachedGoals)
         ..orderBy(
-            [(u) => OrderingTerm(expression: u.name, mode: OrderingMode.asc)])
-            )
+            [(u) => OrderingTerm(expression: u.name, mode: OrderingMode.asc)]))
       .map((cached) => Goal.copy(cached))
       .watch();
 }
