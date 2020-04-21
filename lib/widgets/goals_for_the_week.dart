@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -6,15 +8,34 @@ import '../db.dart';
 import 'section_title.dart';
 
 
-class GoalsForTheWeek extends StatelessWidget {
+class GoalsForTheWeek extends StatefulWidget {
   const GoalsForTheWeek({
     Key key,
   }) : super(key: key);
 
   @override
+  _GoalsForTheWeekState createState() => _GoalsForTheWeekState();
+}
+
+class _GoalsForTheWeekState extends State<GoalsForTheWeek> {
+  Timer timer;
+
+  @override
+  void initState() { 
+    super.initState();
+    timer = Timer.periodic(Duration(seconds: 300), (Timer t) => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final _dbProvider = Provider.of<WeeklyGoalsDatabase>(context);
-    final _weekDone = weekOffset() / 7;
+    final _weekDone = DateTime.now().difference(startOfWeek()).inMinutes / 60 / 24 / 7;
 
     return StreamBuilder<List<Goal>>(
         stream: _dbProvider.watchCurrentGoals(),
@@ -69,8 +90,8 @@ class GoalsForTheWeek extends StatelessWidget {
                               final progressRatio =
                                   goal.currentProgress / goal.perWeek;
                               final progressLevel = progressRatio - _weekDone;
-                              // print(
-                              //     'Progress for ${goal.name} is ${goal.currentProgress}/${goal.perWeek}; ratio is ${progressRatio}, level is ${progressLevel}');
+                              print(
+                                  'Progress for ${goal.name} is ${goal.currentProgress}/${goal.perWeek}; ratio is ${progressRatio}, level is ${progressLevel}');
                               if (goal.currentProgress >= goal.perWeek)
                                 color = Colors.green;
                               else if (progressLevel > 0)
