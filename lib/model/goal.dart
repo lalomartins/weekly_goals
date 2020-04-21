@@ -16,6 +16,7 @@ class Goal extends CachedGoal {
     });
     events.forEach((event) {
       final goal = map[event.name];
+      if (goal == null) return;
       if (goal.dailyAmountMatters)
         goal.currentProgress++;
       else {
