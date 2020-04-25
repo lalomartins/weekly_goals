@@ -26,11 +26,7 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => CalendarPage(),
-          'add': (context) => Scaffold(
-              appBar: AppBar(
-                title: Text('Add Event'),
-              ),
-              body: AddScreen()),
+          'add': (context) => AddScreen(),
         },
         builder: (context, navi) {
           config.init(context);
