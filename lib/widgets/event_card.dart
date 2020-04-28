@@ -8,7 +8,7 @@ class EventCard extends StatefulWidget {
   EventCard({
     @required this.event,
     this.onNav,
-  }) : super(key: ObjectKey(event.id));
+  }) : super(key: ObjectKey(event.uuid));
 
   final Event event;
   final void Function() onNav;

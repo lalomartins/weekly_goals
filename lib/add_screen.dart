@@ -45,15 +45,18 @@ class _AddEventFormState extends State<AddEventForm> {
   Map<String, dynamic> event;
 
   _AddEventFormState(_event) {
+    final now = DateTime.now();
     if (_event == null) {
       event = {
-        'timestamp': DateTime.now(),
+        'timestamp': now,
+        'timezone': now.timeZoneName,
         'realtime': true,
       };
     } else {
       event = _event.toJson();
-      event['id'] = null;
-      event['timestamp'] = DateTime.now();
+      event['uuid'] = null;
+      event['timestamp'] = now;
+      event['timezone'] = now.timeZoneName;
     }
   }
 
@@ -110,13 +113,15 @@ class _AddEventFormState extends State<AddEventForm> {
                     if (selectedTime == null) return;
 
                     setState(() {
-                      event['timestamp'] = DateTime(
+                      final dt = DateTime(
                         selectedDate.year,
                         selectedDate.month,
                         selectedDate.day,
                         selectedTime.hour,
                         selectedTime.minute,
                       );
+                      event['timestamp'] = dt;
+                      event['timezone'] = dt.timeZoneName;
                     });
                   },
                 ),

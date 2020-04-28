@@ -286,73 +286,84 @@ class CachedGoals extends Table with TableInfo<CachedGoals, CachedGoal> {
 }
 
 class Event extends DataClass implements Insertable<Event> {
-  final int id;
+  final String uuid;
   final String type;
   final String name;
   final String description;
   final DateTime timestamp;
+  final String timezone;
   final bool realTime;
   final String additional;
+  final DateTime synced;
   Event(
-      {@required this.id,
+      {@required this.uuid,
       @required this.type,
       @required this.name,
       @required this.description,
       @required this.timestamp,
+      @required this.timezone,
       @required this.realTime,
-      @required this.additional});
+      @required this.additional,
+      this.synced});
   factory Event.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
     final dateTimeType = db.typeSystem.forDartType<DateTime>();
     final boolType = db.typeSystem.forDartType<bool>();
     return Event(
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      uuid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uuid']),
       type: stringType.mapFromDatabaseResponse(data['${effectivePrefix}type']),
       name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
       description: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}description']),
       timestamp: dateTimeType
           .mapFromDatabaseResponse(data['${effectivePrefix}timestamp']),
+      timezone: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}timezone']),
       realTime:
           boolType.mapFromDatabaseResponse(data['${effectivePrefix}real_time']),
       additional: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}additional']),
+      synced: dateTimeType
+          .mapFromDatabaseResponse(data['${effectivePrefix}synced']),
     );
   }
   factory Event.fromJson(Map<String, dynamic> json,
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Event(
-      id: serializer.fromJson<int>(json['id']),
+      uuid: serializer.fromJson<String>(json['uuid']),
       type: serializer.fromJson<String>(json['type']),
       name: serializer.fromJson<String>(json['name']),
       description: serializer.fromJson<String>(json['description']),
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      timezone: serializer.fromJson<String>(json['timezone']),
       realTime: serializer.fromJson<bool>(json['realTime']),
       additional: serializer.fromJson<String>(json['additional']),
+      synced: serializer.fromJson<DateTime>(json['synced']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
+      'uuid': serializer.toJson<String>(uuid),
       'type': serializer.toJson<String>(type),
       'name': serializer.toJson<String>(name),
       'description': serializer.toJson<String>(description),
       'timestamp': serializer.toJson<DateTime>(timestamp),
+      'timezone': serializer.toJson<String>(timezone),
       'realTime': serializer.toJson<bool>(realTime),
       'additional': serializer.toJson<String>(additional),
+      'synced': serializer.toJson<DateTime>(synced),
     };
   }
 
   @override
   EventsCompanion createCompanion(bool nullToAbsent) {
     return EventsCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      uuid: uuid == null && nullToAbsent ? const Value.absent() : Value(uuid),
       type: type == null && nullToAbsent ? const Value.absent() : Value(type),
       name: name == null && nullToAbsent ? const Value.absent() : Value(name),
       description: description == null && nullToAbsent
@@ -361,114 +372,145 @@ class Event extends DataClass implements Insertable<Event> {
       timestamp: timestamp == null && nullToAbsent
           ? const Value.absent()
           : Value(timestamp),
+      timezone: timezone == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timezone),
       realTime: realTime == null && nullToAbsent
           ? const Value.absent()
           : Value(realTime),
       additional: additional == null && nullToAbsent
           ? const Value.absent()
           : Value(additional),
+      synced:
+          synced == null && nullToAbsent ? const Value.absent() : Value(synced),
     );
   }
 
   Event copyWith(
-          {int id,
+          {String uuid,
           String type,
           String name,
           String description,
           DateTime timestamp,
+          String timezone,
           bool realTime,
-          String additional}) =>
+          String additional,
+          DateTime synced}) =>
       Event(
-        id: id ?? this.id,
+        uuid: uuid ?? this.uuid,
         type: type ?? this.type,
         name: name ?? this.name,
         description: description ?? this.description,
         timestamp: timestamp ?? this.timestamp,
+        timezone: timezone ?? this.timezone,
         realTime: realTime ?? this.realTime,
         additional: additional ?? this.additional,
+        synced: synced ?? this.synced,
       );
   @override
   String toString() {
     return (StringBuffer('Event(')
-          ..write('id: $id, ')
+          ..write('uuid: $uuid, ')
           ..write('type: $type, ')
           ..write('name: $name, ')
           ..write('description: $description, ')
           ..write('timestamp: $timestamp, ')
+          ..write('timezone: $timezone, ')
           ..write('realTime: $realTime, ')
-          ..write('additional: $additional')
+          ..write('additional: $additional, ')
+          ..write('synced: $synced')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => $mrjf($mrjc(
-      id.hashCode,
+      uuid.hashCode,
       $mrjc(
           type.hashCode,
           $mrjc(
               name.hashCode,
               $mrjc(
                   description.hashCode,
-                  $mrjc(timestamp.hashCode,
-                      $mrjc(realTime.hashCode, additional.hashCode)))))));
+                  $mrjc(
+                      timestamp.hashCode,
+                      $mrjc(
+                          timezone.hashCode,
+                          $mrjc(
+                              realTime.hashCode,
+                              $mrjc(
+                                  additional.hashCode, synced.hashCode)))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Event &&
-          other.id == this.id &&
+          other.uuid == this.uuid &&
           other.type == this.type &&
           other.name == this.name &&
           other.description == this.description &&
           other.timestamp == this.timestamp &&
+          other.timezone == this.timezone &&
           other.realTime == this.realTime &&
-          other.additional == this.additional);
+          other.additional == this.additional &&
+          other.synced == this.synced);
 }
 
 class EventsCompanion extends UpdateCompanion<Event> {
-  final Value<int> id;
+  final Value<String> uuid;
   final Value<String> type;
   final Value<String> name;
   final Value<String> description;
   final Value<DateTime> timestamp;
+  final Value<String> timezone;
   final Value<bool> realTime;
   final Value<String> additional;
+  final Value<DateTime> synced;
   const EventsCompanion({
-    this.id = const Value.absent(),
+    this.uuid = const Value.absent(),
     this.type = const Value.absent(),
     this.name = const Value.absent(),
     this.description = const Value.absent(),
     this.timestamp = const Value.absent(),
+    this.timezone = const Value.absent(),
     this.realTime = const Value.absent(),
     this.additional = const Value.absent(),
+    this.synced = const Value.absent(),
   });
   EventsCompanion.insert({
-    this.id = const Value.absent(),
+    @required String uuid,
     @required String type,
     @required String name,
     this.description = const Value.absent(),
     @required DateTime timestamp,
+    @required String timezone,
     this.realTime = const Value.absent(),
     this.additional = const Value.absent(),
-  })  : type = Value(type),
+    this.synced = const Value.absent(),
+  })  : uuid = Value(uuid),
+        type = Value(type),
         name = Value(name),
-        timestamp = Value(timestamp);
+        timestamp = Value(timestamp),
+        timezone = Value(timezone);
   EventsCompanion copyWith(
-      {Value<int> id,
+      {Value<String> uuid,
       Value<String> type,
       Value<String> name,
       Value<String> description,
       Value<DateTime> timestamp,
+      Value<String> timezone,
       Value<bool> realTime,
-      Value<String> additional}) {
+      Value<String> additional,
+      Value<DateTime> synced}) {
     return EventsCompanion(
-      id: id ?? this.id,
+      uuid: uuid ?? this.uuid,
       type: type ?? this.type,
       name: name ?? this.name,
       description: description ?? this.description,
       timestamp: timestamp ?? this.timestamp,
+      timezone: timezone ?? this.timezone,
       realTime: realTime ?? this.realTime,
       additional: additional ?? this.additional,
+      synced: synced ?? this.synced,
     );
   }
 }
@@ -477,14 +519,12 @@ class Events extends Table with TableInfo<Events, Event> {
   final GeneratedDatabase _db;
   final String _alias;
   Events(this._db, [this._alias]);
-  final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedIntColumn _id;
-  GeneratedIntColumn get id => _id ??= _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        declaredAsPrimaryKey: true,
-        hasAutoIncrement: true,
-        $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _uuidMeta = const VerificationMeta('uuid');
+  GeneratedTextColumn _uuid;
+  GeneratedTextColumn get uuid => _uuid ??= _constructUuid();
+  GeneratedTextColumn _constructUuid() {
+    return GeneratedTextColumn('uuid', $tableName, false,
+        $customConstraints: 'NOT NULL PRIMARY KEY');
   }
 
   final VerificationMeta _typeMeta = const VerificationMeta('type');
@@ -522,6 +562,14 @@ class Events extends Table with TableInfo<Events, Event> {
         $customConstraints: 'NOT NULL');
   }
 
+  final VerificationMeta _timezoneMeta = const VerificationMeta('timezone');
+  GeneratedTextColumn _timezone;
+  GeneratedTextColumn get timezone => _timezone ??= _constructTimezone();
+  GeneratedTextColumn _constructTimezone() {
+    return GeneratedTextColumn('timezone', $tableName, false,
+        $customConstraints: 'NOT NULL');
+  }
+
   final VerificationMeta _realTimeMeta = const VerificationMeta('realTime');
   GeneratedBoolColumn _realTime;
   GeneratedBoolColumn get realTime => _realTime ??= _constructRealTime();
@@ -540,9 +588,26 @@ class Events extends Table with TableInfo<Events, Event> {
         defaultValue: const CustomExpression<String, StringType>('\'\''));
   }
 
+  final VerificationMeta _syncedMeta = const VerificationMeta('synced');
+  GeneratedDateTimeColumn _synced;
+  GeneratedDateTimeColumn get synced => _synced ??= _constructSynced();
+  GeneratedDateTimeColumn _constructSynced() {
+    return GeneratedDateTimeColumn('synced', $tableName, true,
+        $customConstraints: '');
+  }
+
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, type, name, description, timestamp, realTime, additional];
+  List<GeneratedColumn> get $columns => [
+        uuid,
+        type,
+        name,
+        description,
+        timestamp,
+        timezone,
+        realTime,
+        additional,
+        synced
+      ];
   @override
   Events get asDslTable => this;
   @override
@@ -553,8 +618,11 @@ class Events extends Table with TableInfo<Events, Event> {
   VerificationContext validateIntegrity(EventsCompanion d,
       {bool isInserting = false}) {
     final context = VerificationContext();
-    if (d.id.present) {
-      context.handle(_idMeta, id.isAcceptableValue(d.id.value, _idMeta));
+    if (d.uuid.present) {
+      context.handle(
+          _uuidMeta, uuid.isAcceptableValue(d.uuid.value, _uuidMeta));
+    } else if (isInserting) {
+      context.missing(_uuidMeta);
     }
     if (d.type.present) {
       context.handle(
@@ -578,6 +646,12 @@ class Events extends Table with TableInfo<Events, Event> {
     } else if (isInserting) {
       context.missing(_timestampMeta);
     }
+    if (d.timezone.present) {
+      context.handle(_timezoneMeta,
+          timezone.isAcceptableValue(d.timezone.value, _timezoneMeta));
+    } else if (isInserting) {
+      context.missing(_timezoneMeta);
+    }
     if (d.realTime.present) {
       context.handle(_realTimeMeta,
           realTime.isAcceptableValue(d.realTime.value, _realTimeMeta));
@@ -586,11 +660,15 @@ class Events extends Table with TableInfo<Events, Event> {
       context.handle(_additionalMeta,
           additional.isAcceptableValue(d.additional.value, _additionalMeta));
     }
+    if (d.synced.present) {
+      context.handle(
+          _syncedMeta, synced.isAcceptableValue(d.synced.value, _syncedMeta));
+    }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {uuid};
   @override
   Event map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -600,8 +678,8 @@ class Events extends Table with TableInfo<Events, Event> {
   @override
   Map<String, Variable> entityToSql(EventsCompanion d) {
     final map = <String, Variable>{};
-    if (d.id.present) {
-      map['id'] = Variable<int, IntType>(d.id.value);
+    if (d.uuid.present) {
+      map['uuid'] = Variable<String, StringType>(d.uuid.value);
     }
     if (d.type.present) {
       map['type'] = Variable<String, StringType>(d.type.value);
@@ -615,11 +693,17 @@ class Events extends Table with TableInfo<Events, Event> {
     if (d.timestamp.present) {
       map['timestamp'] = Variable<DateTime, DateTimeType>(d.timestamp.value);
     }
+    if (d.timezone.present) {
+      map['timezone'] = Variable<String, StringType>(d.timezone.value);
+    }
     if (d.realTime.present) {
       map['real_time'] = Variable<bool, BoolType>(d.realTime.value);
     }
     if (d.additional.present) {
       map['additional'] = Variable<String, StringType>(d.additional.value);
+    }
+    if (d.synced.present) {
+      map['synced'] = Variable<DateTime, DateTimeType>(d.synced.value);
     }
     return map;
   }
