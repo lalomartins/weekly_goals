@@ -142,7 +142,12 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
     if (data['uuid'] == null) {
       data = data.map((k, v) => MapEntry(k, v));
       copied = true;
-      data['uuid'] = uuid.v4();
+      data['uuid'] = uuid.v1();
+    }
+    if (data['synced'] != null) {
+      data = data.map((k, v) => MapEntry(k, v));
+      copied = true;
+      data['synced'] = null;
     }
     if (data['timestamp'] is DateTime) {
       data = data.map((k, v) => MapEntry(k, v));

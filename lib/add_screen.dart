@@ -50,14 +50,17 @@ class _AddEventFormState extends State<AddEventForm> {
     if (_event == null) {
       event = {
         'timestamp': now,
-        'timezone': now.timeZoneName,
+        'timezone': tz.local.name,
+        'timezoneOffset': tz.local.currentTimeZone.offset ~/ 1000,
         'realtime': true,
       };
     } else {
       event = _event.toJson();
       event['uuid'] = null;
+      event['synced'] = null;
       event['timestamp'] = now;
-      event['timezone'] = now.timeZoneName;
+      event['timezone'] = tz.local.name;
+      event['timezoneOffset'] = tz.local.currentTimeZone.offset ~/ 1000;
     }
   }
 
