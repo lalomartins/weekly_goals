@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'date_util.dart';
+import 'db.dart';
 import 'event_list.dart';
+import 'server_client.dart';
 import 'widgets/calendar.dart';
 import 'widgets/drawer_overlay.dart';
 
@@ -36,6 +39,12 @@ class _CalendarPageState extends State<CalendarPage> {
     });
   }
 
+  void sync(BuildContext context) {
+    final db = Provider.of<WeeklyGoalsDatabase>(context);
+    final client = Provider.of<ServerClient>(context);
+    client.sync(db);
+  }
+
   @override
   Widget build(BuildContext context) {
     final sow = startOfWeek().add(Duration(days: weekOffset * 7));
@@ -59,6 +68,7 @@ class _CalendarPageState extends State<CalendarPage> {
             ? <Widget>[
                 IconButton(
                     icon: Icon(Icons.arrow_left), onPressed: previousWeek),
+                IconButton(icon: Icon(Icons.sync), onPressed: () => sync(context)),
                 IconButton(
                     icon: Icon(Icons.list),
                     onPressed: () => _scaffoldKey.currentState.openEndDrawer()),
@@ -66,6 +76,7 @@ class _CalendarPageState extends State<CalendarPage> {
             : <Widget>[
                 IconButton(
                     icon: Icon(Icons.arrow_left), onPressed: previousWeek),
+                IconButton(icon: Icon(Icons.sync), onPressed: () => sync(context)),
                 IconButton(
                     icon: Icon(Icons.restore), onPressed: resetWeek),
                 IconButton(

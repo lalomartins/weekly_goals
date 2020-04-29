@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:strings/strings.dart';
+import 'package:timezone/timezone.dart' as tz;
 import 'package:yaml/yaml.dart';
 
 import 'db.dart';
@@ -121,7 +122,8 @@ class _AddEventFormState extends State<AddEventForm> {
                         selectedTime.minute,
                       );
                       event['timestamp'] = dt;
-                      event['timezone'] = dt.timeZoneName;
+                      event['timezone'] = tz.local.name;
+                      event['timezoneOffset'] = tz.local.timeZone(dt.millisecondsSinceEpoch).offset ~/ 1000;
                     });
                   },
                 ),

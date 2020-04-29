@@ -5,6 +5,7 @@ CREATE TABLE events (
   description TEXT NOT NULL DEFAULT '',
   timestamp DATETIME NOT NULL,
   timezone TEXT NOT NULL,
+  timezoneOffset INT NOT NULL,
   real_time BOOL NOT NULL DEFAULT 1,
   additional TEXT NOT NULL DEFAULT '',
   synced DATETIME

@@ -292,6 +292,7 @@ class Event extends DataClass implements Insertable<Event> {
   final String description;
   final DateTime timestamp;
   final String timezone;
+  final int timezoneOffset;
   final bool realTime;
   final String additional;
   final DateTime synced;
@@ -302,6 +303,7 @@ class Event extends DataClass implements Insertable<Event> {
       @required this.description,
       @required this.timestamp,
       @required this.timezone,
+      @required this.timezoneOffset,
       @required this.realTime,
       @required this.additional,
       this.synced});
@@ -310,6 +312,7 @@ class Event extends DataClass implements Insertable<Event> {
     final effectivePrefix = prefix ?? '';
     final stringType = db.typeSystem.forDartType<String>();
     final dateTimeType = db.typeSystem.forDartType<DateTime>();
+    final intType = db.typeSystem.forDartType<int>();
     final boolType = db.typeSystem.forDartType<bool>();
     return Event(
       uuid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uuid']),
@@ -321,6 +324,8 @@ class Event extends DataClass implements Insertable<Event> {
           .mapFromDatabaseResponse(data['${effectivePrefix}timestamp']),
       timezone: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}timezone']),
+      timezoneOffset: intType
+          .mapFromDatabaseResponse(data['${effectivePrefix}timezoneOffset']),
       realTime:
           boolType.mapFromDatabaseResponse(data['${effectivePrefix}real_time']),
       additional: stringType
@@ -339,6 +344,7 @@ class Event extends DataClass implements Insertable<Event> {
       description: serializer.fromJson<String>(json['description']),
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
       timezone: serializer.fromJson<String>(json['timezone']),
+      timezoneOffset: serializer.fromJson<int>(json['timezoneOffset']),
       realTime: serializer.fromJson<bool>(json['realTime']),
       additional: serializer.fromJson<String>(json['additional']),
       synced: serializer.fromJson<DateTime>(json['synced']),
@@ -354,6 +360,7 @@ class Event extends DataClass implements Insertable<Event> {
       'description': serializer.toJson<String>(description),
       'timestamp': serializer.toJson<DateTime>(timestamp),
       'timezone': serializer.toJson<String>(timezone),
+      'timezoneOffset': serializer.toJson<int>(timezoneOffset),
       'realTime': serializer.toJson<bool>(realTime),
       'additional': serializer.toJson<String>(additional),
       'synced': serializer.toJson<DateTime>(synced),
@@ -375,6 +382,9 @@ class Event extends DataClass implements Insertable<Event> {
       timezone: timezone == null && nullToAbsent
           ? const Value.absent()
           : Value(timezone),
+      timezoneOffset: timezoneOffset == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timezoneOffset),
       realTime: realTime == null && nullToAbsent
           ? const Value.absent()
           : Value(realTime),
@@ -393,6 +403,7 @@ class Event extends DataClass implements Insertable<Event> {
           String description,
           DateTime timestamp,
           String timezone,
+          int timezoneOffset,
           bool realTime,
           String additional,
           DateTime synced}) =>
@@ -403,6 +414,7 @@ class Event extends DataClass implements Insertable<Event> {
         description: description ?? this.description,
         timestamp: timestamp ?? this.timestamp,
         timezone: timezone ?? this.timezone,
+        timezoneOffset: timezoneOffset ?? this.timezoneOffset,
         realTime: realTime ?? this.realTime,
         additional: additional ?? this.additional,
         synced: synced ?? this.synced,
@@ -416,6 +428,7 @@ class Event extends DataClass implements Insertable<Event> {
           ..write('description: $description, ')
           ..write('timestamp: $timestamp, ')
           ..write('timezone: $timezone, ')
+          ..write('timezoneOffset: $timezoneOffset, ')
           ..write('realTime: $realTime, ')
           ..write('additional: $additional, ')
           ..write('synced: $synced')
@@ -437,9 +450,11 @@ class Event extends DataClass implements Insertable<Event> {
                       $mrjc(
                           timezone.hashCode,
                           $mrjc(
-                              realTime.hashCode,
+                              timezoneOffset.hashCode,
                               $mrjc(
-                                  additional.hashCode, synced.hashCode)))))))));
+                                  realTime.hashCode,
+                                  $mrjc(additional.hashCode,
+                                      synced.hashCode))))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -450,6 +465,7 @@ class Event extends DataClass implements Insertable<Event> {
           other.description == this.description &&
           other.timestamp == this.timestamp &&
           other.timezone == this.timezone &&
+          other.timezoneOffset == this.timezoneOffset &&
           other.realTime == this.realTime &&
           other.additional == this.additional &&
           other.synced == this.synced);
@@ -462,6 +478,7 @@ class EventsCompanion extends UpdateCompanion<Event> {
   final Value<String> description;
   final Value<DateTime> timestamp;
   final Value<String> timezone;
+  final Value<int> timezoneOffset;
   final Value<bool> realTime;
   final Value<String> additional;
   final Value<DateTime> synced;
@@ -472,6 +489,7 @@ class EventsCompanion extends UpdateCompanion<Event> {
     this.description = const Value.absent(),
     this.timestamp = const Value.absent(),
     this.timezone = const Value.absent(),
+    this.timezoneOffset = const Value.absent(),
     this.realTime = const Value.absent(),
     this.additional = const Value.absent(),
     this.synced = const Value.absent(),
@@ -483,6 +501,7 @@ class EventsCompanion extends UpdateCompanion<Event> {
     this.description = const Value.absent(),
     @required DateTime timestamp,
     @required String timezone,
+    @required int timezoneOffset,
     this.realTime = const Value.absent(),
     this.additional = const Value.absent(),
     this.synced = const Value.absent(),
@@ -490,7 +509,8 @@ class EventsCompanion extends UpdateCompanion<Event> {
         type = Value(type),
         name = Value(name),
         timestamp = Value(timestamp),
-        timezone = Value(timezone);
+        timezone = Value(timezone),
+        timezoneOffset = Value(timezoneOffset);
   EventsCompanion copyWith(
       {Value<String> uuid,
       Value<String> type,
@@ -498,6 +518,7 @@ class EventsCompanion extends UpdateCompanion<Event> {
       Value<String> description,
       Value<DateTime> timestamp,
       Value<String> timezone,
+      Value<int> timezoneOffset,
       Value<bool> realTime,
       Value<String> additional,
       Value<DateTime> synced}) {
@@ -508,6 +529,7 @@ class EventsCompanion extends UpdateCompanion<Event> {
       description: description ?? this.description,
       timestamp: timestamp ?? this.timestamp,
       timezone: timezone ?? this.timezone,
+      timezoneOffset: timezoneOffset ?? this.timezoneOffset,
       realTime: realTime ?? this.realTime,
       additional: additional ?? this.additional,
       synced: synced ?? this.synced,
@@ -570,6 +592,16 @@ class Events extends Table with TableInfo<Events, Event> {
         $customConstraints: 'NOT NULL');
   }
 
+  final VerificationMeta _timezoneOffsetMeta =
+      const VerificationMeta('timezoneOffset');
+  GeneratedIntColumn _timezoneOffset;
+  GeneratedIntColumn get timezoneOffset =>
+      _timezoneOffset ??= _constructTimezoneOffset();
+  GeneratedIntColumn _constructTimezoneOffset() {
+    return GeneratedIntColumn('timezoneOffset', $tableName, false,
+        $customConstraints: 'NOT NULL');
+  }
+
   final VerificationMeta _realTimeMeta = const VerificationMeta('realTime');
   GeneratedBoolColumn _realTime;
   GeneratedBoolColumn get realTime => _realTime ??= _constructRealTime();
@@ -604,6 +636,7 @@ class Events extends Table with TableInfo<Events, Event> {
         description,
         timestamp,
         timezone,
+        timezoneOffset,
         realTime,
         additional,
         synced
@@ -652,6 +685,14 @@ class Events extends Table with TableInfo<Events, Event> {
     } else if (isInserting) {
       context.missing(_timezoneMeta);
     }
+    if (d.timezoneOffset.present) {
+      context.handle(
+          _timezoneOffsetMeta,
+          timezoneOffset.isAcceptableValue(
+              d.timezoneOffset.value, _timezoneOffsetMeta));
+    } else if (isInserting) {
+      context.missing(_timezoneOffsetMeta);
+    }
     if (d.realTime.present) {
       context.handle(_realTimeMeta,
           realTime.isAcceptableValue(d.realTime.value, _realTimeMeta));
@@ -695,6 +736,9 @@ class Events extends Table with TableInfo<Events, Event> {
     }
     if (d.timezone.present) {
       map['timezone'] = Variable<String, StringType>(d.timezone.value);
+    }
+    if (d.timezoneOffset.present) {
+      map['timezoneOffset'] = Variable<int, IntType>(d.timezoneOffset.value);
     }
     if (d.realTime.present) {
       map['real_time'] = Variable<bool, BoolType>(d.realTime.value);
