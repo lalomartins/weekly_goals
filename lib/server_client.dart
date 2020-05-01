@@ -61,22 +61,25 @@ class ServerClient {
           ..additionalYaml = e.additional);
     }));
     int i = 0;
-    await for (final response in _client.pushEvents(outgoing)) {
-      final res = response.result;
-      if (res.hasError())
-        print(
-            'Got error ${res.error.code} ${res.error.message} syncing ${toSync[i].uuid}');
-      else {
-        final evUuid = uuid.unparse(res.event.uuid);
-        final event =
-            map[evUuid].copyWith(synced: res.event.synced.toDateTime());
-        // print(
-        //     'Got event ${event.uuid} (${res.event.type}/${res.event.name}) synced at ${res.event.synced}');
-        await db.updateEvent(event);
+    try {
+      await for (final response in _client.pushEvents(outgoing)) {
+        final res = response.result;
+        if (res.hasError())
+          print(
+              'Got error ${res.error.code} ${res.error.message} syncing ${toSync[i].uuid}');
+        else {
+          final evUuid = uuid.unparse(res.event.uuid);
+          final event =
+              map[evUuid].copyWith(synced: res.event.synced.toDateTime());
+          // print(
+          //     'Got event ${event.uuid} (${res.event.type}/${res.event.name}) synced at ${res.event.synced}');
+          await db.updateEvent(event);
+        }
+        i++;
       }
-      i++;
+      print('sync finished');
+    } finally {
+      syncing = false;
     }
-    print('sync finished');
-    syncing = false;
   }
 }

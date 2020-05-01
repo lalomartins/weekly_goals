@@ -19,6 +19,7 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
   int weekOffset = 0;
+  var syncError;
   static final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   void previousWeek() {
@@ -39,10 +40,18 @@ class _CalendarPageState extends State<CalendarPage> {
     });
   }
 
-  void sync(BuildContext context) {
+  Future<void> sync(BuildContext context) async {
     final db = Provider.of<WeeklyGoalsDatabase>(context);
     final client = Provider.of<ServerClient>(context);
-    client.sync(db);
+    try {
+      await client.sync(db);
+    } catch (e) {
+      print('Sync error!');
+      print(e);
+      setState(() {
+        syncError = e;
+      });
+    }
   }
 
   @override
@@ -68,7 +77,8 @@ class _CalendarPageState extends State<CalendarPage> {
             ? <Widget>[
                 IconButton(
                     icon: Icon(Icons.arrow_left), onPressed: previousWeek),
-                IconButton(icon: Icon(Icons.sync), onPressed: () => sync(context)),
+                IconButton(
+                    icon: Icon(Icons.sync), onPressed: () => sync(context)),
                 IconButton(
                     icon: Icon(Icons.list),
                     onPressed: () => _scaffoldKey.currentState.openEndDrawer()),
@@ -76,12 +86,32 @@ class _CalendarPageState extends State<CalendarPage> {
             : <Widget>[
                 IconButton(
                     icon: Icon(Icons.arrow_left), onPressed: previousWeek),
-                IconButton(icon: Icon(Icons.sync), onPressed: () => sync(context)),
                 IconButton(
-                    icon: Icon(Icons.restore), onPressed: resetWeek),
-                IconButton(
-                    icon: Icon(Icons.arrow_right), onPressed: nextWeek),
+                    icon: Icon(Icons.sync), onPressed: () => sync(context)),
+                IconButton(icon: Icon(Icons.restore), onPressed: resetWeek),
+                IconButton(icon: Icon(Icons.arrow_right), onPressed: nextWeek),
               ],
+        bottom: syncError == null
+            ? null
+            : PreferredSize(
+                preferredSize: Size.fromHeight(50.0),
+                child: MaterialBanner(
+                  content: Text(
+                    'Sync error. Try again later, or check the logs.',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: Theme.of(context).errorColor,
+                  actions: [
+                    FlatButton(
+                      onPressed: () => setState(() => syncError = null),
+                      child: Text(
+                        'Dismiss',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    )
+                  ],
+                ),
+              ),
       ),
       body: Calendar(start: sow, weeksAgo: -weekOffset),
       endDrawer: DrawerOverlay(drawerContent: EventList(popOnNav: true)),
