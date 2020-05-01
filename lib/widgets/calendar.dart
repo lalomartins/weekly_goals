@@ -154,6 +154,9 @@ class CalendarDay extends StatelessWidget {
                                               // textAlign: TextAlign.start,
                                               maxLines: 3,
                                               overflow: TextOverflow.fade,
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                              ),
                                             ),
                                           ),
                                         ],
