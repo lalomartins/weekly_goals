@@ -61,7 +61,7 @@ class MiniWeekReport extends StatelessWidget {
                       Goal goal = sortedGoals[categories[category]]
                           [index - categoryStart - 1];
                       if (goal != null) {
-                        Color color = Colors.black;
+                        Color color = Theme.of(context).colorScheme.onSurface;
                         if (goal.perWeek == null) {
                           if (goal.currentProgress == 0)
                             color = Colors.grey;
