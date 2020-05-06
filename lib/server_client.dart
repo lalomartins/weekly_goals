@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:grpc/grpc.dart';
+import 'package:moor/moor.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:weekly_goals/generated/google/protobuf/timestamp.pb.dart';
 import 'package:weekly_goals/generated/service.pbgrpc.dart';
@@ -11,6 +12,11 @@ import 'db.dart';
 
 final _dummyAccount = utf8.encode('dummy');
 const _applicationId = 'lalomartins.info/apps/weekly-goals';
+final _getEventsRequest = GetEventsRequest()
+  ..filter = (pbTypes.EventsFilter()
+    ..account = _dummyAccount
+    ..application = _applicationId
+  );
 
 class ServerClient {
   ClientChannel _channel;
@@ -36,6 +42,36 @@ class ServerClient {
     if (syncing) return;
 
     syncing = true;
+
+    print('syncing from server');
+    try {
+      List<Future<void>> dbOps = [];
+      await for (final res in _client.getEvents(_getEventsRequest)) {
+        if (res.result.hasError()) {
+          print('SYNC ERROR received: ${res.result.error}');
+        } else {
+          final data = res.result.event;
+          final event = EventsCompanion.insert(
+            uuid: uuid.unparse(data.uuid),
+            type: data.type,
+            name: data.name,
+            description: Value(data.description),
+            timestamp: data.timestamp.toDateTime(),
+            timezone: data.timezone.name,
+            timezoneOffset: data.timezone.offset,
+            realTime: Value(data.realTime),
+            additional: Value(data.additionalYaml),
+            synced: Value(data.synced.toDateTime()),
+          );
+          dbOps.add(db.upsertEvent(event));
+        }
+      }
+      print('saving ${dbOps.length} events received from server');
+      await Future.wait(dbOps);
+    } catch (e) {
+      print('SYNC ERROR: $e');
+    }
+
     final toSync = await db.unsyncedEvents;
     final Map<String, Event> map = Map();
     print('syncing ${toSync.length} events to server');

@@ -23,7 +23,7 @@ dependencies:
   flutter_native_timezone: ^1.0.4
   grpc: ^2.1.3
   intl: ^0.16.1
-  moor: # use the latest version
+  moor: ^3.0.0
   moor_ffi: # use the latest version
   path_provider:
   path:

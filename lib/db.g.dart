@@ -36,6 +36,27 @@ class CachedGoal extends DataClass implements Insertable<CachedGoal> {
           data['${effectivePrefix}daily_amount_matters']),
     );
   }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    if (!nullToAbsent || category != null) {
+      map['category'] = Variable<String>(category);
+    }
+    if (!nullToAbsent || perWeek != null) {
+      map['per_week'] = Variable<int>(perWeek);
+    }
+    if (!nullToAbsent || dailyAmountMatters != null) {
+      map['daily_amount_matters'] = Variable<bool>(dailyAmountMatters);
+    }
+    return map;
+  }
+
   factory CachedGoal.fromJson(Map<String, dynamic> json,
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -43,8 +64,9 @@ class CachedGoal extends DataClass implements Insertable<CachedGoal> {
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       category: serializer.fromJson<String>(json['category']),
-      perWeek: serializer.fromJson<int>(json['perWeek']),
-      dailyAmountMatters: serializer.fromJson<bool>(json['dailyAmountMatters']),
+      perWeek: serializer.fromJson<int>(json['per_week']),
+      dailyAmountMatters:
+          serializer.fromJson<bool>(json['daily_amount_matters']),
     );
   }
   @override
@@ -54,26 +76,9 @@ class CachedGoal extends DataClass implements Insertable<CachedGoal> {
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
       'category': serializer.toJson<String>(category),
-      'perWeek': serializer.toJson<int>(perWeek),
-      'dailyAmountMatters': serializer.toJson<bool>(dailyAmountMatters),
+      'per_week': serializer.toJson<int>(perWeek),
+      'daily_amount_matters': serializer.toJson<bool>(dailyAmountMatters),
     };
-  }
-
-  @override
-  CachedGoalsCompanion createCompanion(bool nullToAbsent) {
-    return CachedGoalsCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
-      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
-      category: category == null && nullToAbsent
-          ? const Value.absent()
-          : Value(category),
-      perWeek: perWeek == null && nullToAbsent
-          ? const Value.absent()
-          : Value(perWeek),
-      dailyAmountMatters: dailyAmountMatters == null && nullToAbsent
-          ? const Value.absent()
-          : Value(dailyAmountMatters),
-    );
   }
 
   CachedGoal copyWith(
@@ -140,6 +145,23 @@ class CachedGoalsCompanion extends UpdateCompanion<CachedGoal> {
     this.dailyAmountMatters = const Value.absent(),
   })  : name = Value(name),
         category = Value(category);
+  static Insertable<CachedGoal> custom({
+    Expression<int> id,
+    Expression<String> name,
+    Expression<String> category,
+    Expression<int> perWeek,
+    Expression<bool> dailyAmountMatters,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (category != null) 'category': category,
+      if (perWeek != null) 'per_week': perWeek,
+      if (dailyAmountMatters != null)
+        'daily_amount_matters': dailyAmountMatters,
+    });
+  }
+
   CachedGoalsCompanion copyWith(
       {Value<int> id,
       Value<String> name,
@@ -153,6 +175,27 @@ class CachedGoalsCompanion extends UpdateCompanion<CachedGoal> {
       perWeek: perWeek ?? this.perWeek,
       dailyAmountMatters: dailyAmountMatters ?? this.dailyAmountMatters,
     );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (perWeek.present) {
+      map['per_week'] = Variable<int>(perWeek.value);
+    }
+    if (dailyAmountMatters.present) {
+      map['daily_amount_matters'] = Variable<bool>(dailyAmountMatters.value);
+    }
+    return map;
   }
 }
 
@@ -202,7 +245,7 @@ class CachedGoals extends Table with TableInfo<CachedGoals, CachedGoal> {
   GeneratedBoolColumn _constructDailyAmountMatters() {
     return GeneratedBoolColumn('daily_amount_matters', $tableName, true,
         $customConstraints: 'DEFAULT 1',
-        defaultValue: const CustomExpression<bool, BoolType>('1'));
+        defaultValue: const CustomExpression<bool>('1'));
   }
 
   @override
@@ -215,33 +258,34 @@ class CachedGoals extends Table with TableInfo<CachedGoals, CachedGoal> {
   @override
   final String actualTableName = 'cached_goals';
   @override
-  VerificationContext validateIntegrity(CachedGoalsCompanion d,
+  VerificationContext validateIntegrity(Insertable<CachedGoal> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
-    if (d.id.present) {
-      context.handle(_idMeta, id.isAcceptableValue(d.id.value, _idMeta));
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
     }
-    if (d.name.present) {
+    if (data.containsKey('name')) {
       context.handle(
-          _nameMeta, name.isAcceptableValue(d.name.value, _nameMeta));
+          _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (d.category.present) {
+    if (data.containsKey('category')) {
       context.handle(_categoryMeta,
-          category.isAcceptableValue(d.category.value, _categoryMeta));
+          category.isAcceptableOrUnknown(data['category'], _categoryMeta));
     } else if (isInserting) {
       context.missing(_categoryMeta);
     }
-    if (d.perWeek.present) {
+    if (data.containsKey('per_week')) {
       context.handle(_perWeekMeta,
-          perWeek.isAcceptableValue(d.perWeek.value, _perWeekMeta));
+          perWeek.isAcceptableOrUnknown(data['per_week'], _perWeekMeta));
     }
-    if (d.dailyAmountMatters.present) {
+    if (data.containsKey('daily_amount_matters')) {
       context.handle(
           _dailyAmountMattersMeta,
-          dailyAmountMatters.isAcceptableValue(
-              d.dailyAmountMatters.value, _dailyAmountMattersMeta));
+          dailyAmountMatters.isAcceptableOrUnknown(
+              data['daily_amount_matters'], _dailyAmountMattersMeta));
     }
     return context;
   }
@@ -252,28 +296,6 @@ class CachedGoals extends Table with TableInfo<CachedGoals, CachedGoal> {
   CachedGoal map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
     return CachedGoal.fromData(data, _db, prefix: effectivePrefix);
-  }
-
-  @override
-  Map<String, Variable> entityToSql(CachedGoalsCompanion d) {
-    final map = <String, Variable>{};
-    if (d.id.present) {
-      map['id'] = Variable<int, IntType>(d.id.value);
-    }
-    if (d.name.present) {
-      map['name'] = Variable<String, StringType>(d.name.value);
-    }
-    if (d.category.present) {
-      map['category'] = Variable<String, StringType>(d.category.value);
-    }
-    if (d.perWeek.present) {
-      map['per_week'] = Variable<int, IntType>(d.perWeek.value);
-    }
-    if (d.dailyAmountMatters.present) {
-      map['daily_amount_matters'] =
-          Variable<bool, BoolType>(d.dailyAmountMatters.value);
-    }
-    return map;
   }
 
   @override
@@ -334,6 +356,42 @@ class Event extends DataClass implements Insertable<Event> {
           .mapFromDatabaseResponse(data['${effectivePrefix}synced']),
     );
   }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || uuid != null) {
+      map['uuid'] = Variable<String>(uuid);
+    }
+    if (!nullToAbsent || type != null) {
+      map['type'] = Variable<String>(type);
+    }
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || timestamp != null) {
+      map['timestamp'] = Variable<DateTime>(timestamp);
+    }
+    if (!nullToAbsent || timezone != null) {
+      map['timezone'] = Variable<String>(timezone);
+    }
+    if (!nullToAbsent || timezoneOffset != null) {
+      map['timezoneOffset'] = Variable<int>(timezoneOffset);
+    }
+    if (!nullToAbsent || realTime != null) {
+      map['real_time'] = Variable<bool>(realTime);
+    }
+    if (!nullToAbsent || additional != null) {
+      map['additional'] = Variable<String>(additional);
+    }
+    if (!nullToAbsent || synced != null) {
+      map['synced'] = Variable<DateTime>(synced);
+    }
+    return map;
+  }
+
   factory Event.fromJson(Map<String, dynamic> json,
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -345,7 +403,7 @@ class Event extends DataClass implements Insertable<Event> {
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
       timezone: serializer.fromJson<String>(json['timezone']),
       timezoneOffset: serializer.fromJson<int>(json['timezoneOffset']),
-      realTime: serializer.fromJson<bool>(json['realTime']),
+      realTime: serializer.fromJson<bool>(json['real_time']),
       additional: serializer.fromJson<String>(json['additional']),
       synced: serializer.fromJson<DateTime>(json['synced']),
     );
@@ -361,39 +419,10 @@ class Event extends DataClass implements Insertable<Event> {
       'timestamp': serializer.toJson<DateTime>(timestamp),
       'timezone': serializer.toJson<String>(timezone),
       'timezoneOffset': serializer.toJson<int>(timezoneOffset),
-      'realTime': serializer.toJson<bool>(realTime),
+      'real_time': serializer.toJson<bool>(realTime),
       'additional': serializer.toJson<String>(additional),
       'synced': serializer.toJson<DateTime>(synced),
     };
-  }
-
-  @override
-  EventsCompanion createCompanion(bool nullToAbsent) {
-    return EventsCompanion(
-      uuid: uuid == null && nullToAbsent ? const Value.absent() : Value(uuid),
-      type: type == null && nullToAbsent ? const Value.absent() : Value(type),
-      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
-      description: description == null && nullToAbsent
-          ? const Value.absent()
-          : Value(description),
-      timestamp: timestamp == null && nullToAbsent
-          ? const Value.absent()
-          : Value(timestamp),
-      timezone: timezone == null && nullToAbsent
-          ? const Value.absent()
-          : Value(timezone),
-      timezoneOffset: timezoneOffset == null && nullToAbsent
-          ? const Value.absent()
-          : Value(timezoneOffset),
-      realTime: realTime == null && nullToAbsent
-          ? const Value.absent()
-          : Value(realTime),
-      additional: additional == null && nullToAbsent
-          ? const Value.absent()
-          : Value(additional),
-      synced:
-          synced == null && nullToAbsent ? const Value.absent() : Value(synced),
-    );
   }
 
   Event copyWith(
@@ -511,6 +540,32 @@ class EventsCompanion extends UpdateCompanion<Event> {
         timestamp = Value(timestamp),
         timezone = Value(timezone),
         timezoneOffset = Value(timezoneOffset);
+  static Insertable<Event> custom({
+    Expression<String> uuid,
+    Expression<String> type,
+    Expression<String> name,
+    Expression<String> description,
+    Expression<DateTime> timestamp,
+    Expression<String> timezone,
+    Expression<int> timezoneOffset,
+    Expression<bool> realTime,
+    Expression<String> additional,
+    Expression<DateTime> synced,
+  }) {
+    return RawValuesInsertable({
+      if (uuid != null) 'uuid': uuid,
+      if (type != null) 'type': type,
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (timezone != null) 'timezone': timezone,
+      if (timezoneOffset != null) 'timezoneOffset': timezoneOffset,
+      if (realTime != null) 'real_time': realTime,
+      if (additional != null) 'additional': additional,
+      if (synced != null) 'synced': synced,
+    });
+  }
+
   EventsCompanion copyWith(
       {Value<String> uuid,
       Value<String> type,
@@ -534,6 +589,42 @@ class EventsCompanion extends UpdateCompanion<Event> {
       additional: additional ?? this.additional,
       synced: synced ?? this.synced,
     );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (uuid.present) {
+      map['uuid'] = Variable<String>(uuid.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (timezone.present) {
+      map['timezone'] = Variable<String>(timezone.value);
+    }
+    if (timezoneOffset.present) {
+      map['timezoneOffset'] = Variable<int>(timezoneOffset.value);
+    }
+    if (realTime.present) {
+      map['real_time'] = Variable<bool>(realTime.value);
+    }
+    if (additional.present) {
+      map['additional'] = Variable<String>(additional.value);
+    }
+    if (synced.present) {
+      map['synced'] = Variable<DateTime>(synced.value);
+    }
+    return map;
   }
 }
 
@@ -573,7 +664,7 @@ class Events extends Table with TableInfo<Events, Event> {
   GeneratedTextColumn _constructDescription() {
     return GeneratedTextColumn('description', $tableName, false,
         $customConstraints: 'NOT NULL DEFAULT \'\'',
-        defaultValue: const CustomExpression<String, StringType>('\'\''));
+        defaultValue: const CustomExpression<String>('\'\''));
   }
 
   final VerificationMeta _timestampMeta = const VerificationMeta('timestamp');
@@ -608,7 +699,7 @@ class Events extends Table with TableInfo<Events, Event> {
   GeneratedBoolColumn _constructRealTime() {
     return GeneratedBoolColumn('real_time', $tableName, false,
         $customConstraints: 'NOT NULL DEFAULT 1',
-        defaultValue: const CustomExpression<bool, BoolType>('1'));
+        defaultValue: const CustomExpression<bool>('1'));
   }
 
   final VerificationMeta _additionalMeta = const VerificationMeta('additional');
@@ -617,7 +708,7 @@ class Events extends Table with TableInfo<Events, Event> {
   GeneratedTextColumn _constructAdditional() {
     return GeneratedTextColumn('additional', $tableName, false,
         $customConstraints: 'NOT NULL DEFAULT \'\'',
-        defaultValue: const CustomExpression<String, StringType>('\'\''));
+        defaultValue: const CustomExpression<String>('\'\''));
   }
 
   final VerificationMeta _syncedMeta = const VerificationMeta('synced');
@@ -648,62 +739,67 @@ class Events extends Table with TableInfo<Events, Event> {
   @override
   final String actualTableName = 'events';
   @override
-  VerificationContext validateIntegrity(EventsCompanion d,
+  VerificationContext validateIntegrity(Insertable<Event> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
-    if (d.uuid.present) {
+    final data = instance.toColumns(true);
+    if (data.containsKey('uuid')) {
       context.handle(
-          _uuidMeta, uuid.isAcceptableValue(d.uuid.value, _uuidMeta));
+          _uuidMeta, uuid.isAcceptableOrUnknown(data['uuid'], _uuidMeta));
     } else if (isInserting) {
       context.missing(_uuidMeta);
     }
-    if (d.type.present) {
+    if (data.containsKey('type')) {
       context.handle(
-          _typeMeta, type.isAcceptableValue(d.type.value, _typeMeta));
+          _typeMeta, type.isAcceptableOrUnknown(data['type'], _typeMeta));
     } else if (isInserting) {
       context.missing(_typeMeta);
     }
-    if (d.name.present) {
+    if (data.containsKey('name')) {
       context.handle(
-          _nameMeta, name.isAcceptableValue(d.name.value, _nameMeta));
+          _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (d.description.present) {
-      context.handle(_descriptionMeta,
-          description.isAcceptableValue(d.description.value, _descriptionMeta));
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description'], _descriptionMeta));
     }
-    if (d.timestamp.present) {
+    if (data.containsKey('timestamp')) {
       context.handle(_timestampMeta,
-          timestamp.isAcceptableValue(d.timestamp.value, _timestampMeta));
+          timestamp.isAcceptableOrUnknown(data['timestamp'], _timestampMeta));
     } else if (isInserting) {
       context.missing(_timestampMeta);
     }
-    if (d.timezone.present) {
+    if (data.containsKey('timezone')) {
       context.handle(_timezoneMeta,
-          timezone.isAcceptableValue(d.timezone.value, _timezoneMeta));
+          timezone.isAcceptableOrUnknown(data['timezone'], _timezoneMeta));
     } else if (isInserting) {
       context.missing(_timezoneMeta);
     }
-    if (d.timezoneOffset.present) {
+    if (data.containsKey('timezoneOffset')) {
       context.handle(
           _timezoneOffsetMeta,
-          timezoneOffset.isAcceptableValue(
-              d.timezoneOffset.value, _timezoneOffsetMeta));
+          timezoneOffset.isAcceptableOrUnknown(
+              data['timezoneOffset'], _timezoneOffsetMeta));
     } else if (isInserting) {
       context.missing(_timezoneOffsetMeta);
     }
-    if (d.realTime.present) {
+    if (data.containsKey('real_time')) {
       context.handle(_realTimeMeta,
-          realTime.isAcceptableValue(d.realTime.value, _realTimeMeta));
+          realTime.isAcceptableOrUnknown(data['real_time'], _realTimeMeta));
     }
-    if (d.additional.present) {
-      context.handle(_additionalMeta,
-          additional.isAcceptableValue(d.additional.value, _additionalMeta));
-    }
-    if (d.synced.present) {
+    if (data.containsKey('additional')) {
       context.handle(
-          _syncedMeta, synced.isAcceptableValue(d.synced.value, _syncedMeta));
+          _additionalMeta,
+          additional.isAcceptableOrUnknown(
+              data['additional'], _additionalMeta));
+    }
+    if (data.containsKey('synced')) {
+      context.handle(_syncedMeta,
+          synced.isAcceptableOrUnknown(data['synced'], _syncedMeta));
     }
     return context;
   }
@@ -714,42 +810,6 @@ class Events extends Table with TableInfo<Events, Event> {
   Event map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
     return Event.fromData(data, _db, prefix: effectivePrefix);
-  }
-
-  @override
-  Map<String, Variable> entityToSql(EventsCompanion d) {
-    final map = <String, Variable>{};
-    if (d.uuid.present) {
-      map['uuid'] = Variable<String, StringType>(d.uuid.value);
-    }
-    if (d.type.present) {
-      map['type'] = Variable<String, StringType>(d.type.value);
-    }
-    if (d.name.present) {
-      map['name'] = Variable<String, StringType>(d.name.value);
-    }
-    if (d.description.present) {
-      map['description'] = Variable<String, StringType>(d.description.value);
-    }
-    if (d.timestamp.present) {
-      map['timestamp'] = Variable<DateTime, DateTimeType>(d.timestamp.value);
-    }
-    if (d.timezone.present) {
-      map['timezone'] = Variable<String, StringType>(d.timezone.value);
-    }
-    if (d.timezoneOffset.present) {
-      map['timezoneOffset'] = Variable<int, IntType>(d.timezoneOffset.value);
-    }
-    if (d.realTime.present) {
-      map['real_time'] = Variable<bool, BoolType>(d.realTime.value);
-    }
-    if (d.additional.present) {
-      map['additional'] = Variable<String, StringType>(d.additional.value);
-    }
-    if (d.synced.present) {
-      map['synced'] = Variable<DateTime, DateTimeType>(d.synced.value);
-    }
-    return map;
   }
 
   @override

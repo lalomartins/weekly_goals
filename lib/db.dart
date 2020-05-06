@@ -165,11 +165,12 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
       }
       data['additional'] = json.encode(loadYaml(additional));
     }
-    var ec = Event.fromJson(data).createCompanion(true);
-    return into(events).insert(ec);
+    final event = Event.fromJson(data);
+    return into(events).insert(event);
   }
 
   Future<void> updateEvent(Event event) => update(events).replace(event);
+  Future<void> upsertEvent(EventsCompanion event) => into(events).insertOnConflictUpdate(event);
 
   Stream<List<Goal>> watchCurrentGoals() => (select(cachedGoals)
         ..orderBy(
