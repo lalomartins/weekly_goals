@@ -23,12 +23,21 @@ class _CompactModePageState extends State<CompactModePage> {
   int dayOffset = 0;
   var syncError;
   PageController pageController;
+  PageController weekPageController;
   static final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   @override
   void initState() {
     pageController = PageController();
+    weekPageController = PageController();
     super.initState();
+  }
+
+  @override
+  void dispose() { 
+    pageController.dispose();
+    weekPageController.dispose();
+    super.dispose();
   }
 
   void previousDay() {
@@ -40,7 +49,7 @@ class _CompactModePageState extends State<CompactModePage> {
   }
 
   void resetDay() {
-    pageController.jumpToPage(0);
+    pageController.animateToPage(0, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
   }
 
   Future<void> sync(BuildContext context) async {
@@ -57,32 +66,33 @@ class _CompactModePageState extends State<CompactModePage> {
     }
   }
 
+  void handleDayChanged(offset) {
+    setState(() => dayOffset = -offset);
+    final weekday = weekOffset(date());
+    final weeks = (weekday - dayOffset) ~/ 7;
+    if (weekPageController.page != weeks)
+      weekPageController.animateToPage(weeks, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final today =  date();
+    final today = date();
+    final weekday = weekOffset(today);
     final day = today.add(Duration(days: dayOffset));
     final sow = day.subtract(Duration(days: weekOffset(day)));
-    final weeksAgo = today.difference(sow).inDays ~/ 7;
-    // final eow = sow.add(Duration(days: 6));
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('${youbi[day.weekday]}　・　${day.month}月${day.day}日'),
         actions: dayOffset == 0
             ? <Widget>[
-                IconButton(
-                    icon: Icon(Icons.arrow_left), onPressed: previousDay),
-                IconButton(
-                    icon: Icon(Icons.sync), onPressed: () => sync(context)),
-                IconButton(
-                    icon: Icon(Icons.list),
-                    onPressed: () => _scaffoldKey.currentState.openEndDrawer()),
+                IconButton(icon: Icon(Icons.arrow_left), onPressed: previousDay),
+                IconButton(icon: Icon(Icons.sync), onPressed: () => sync(context)),
+                IconButton(icon: Icon(Icons.list), onPressed: () => _scaffoldKey.currentState.openEndDrawer()),
               ]
             : <Widget>[
-                IconButton(
-                    icon: Icon(Icons.arrow_left), onPressed: previousDay),
-                IconButton(
-                    icon: Icon(Icons.sync), onPressed: () => sync(context)),
+                IconButton(icon: Icon(Icons.arrow_left), onPressed: previousDay),
+                IconButton(icon: Icon(Icons.sync), onPressed: () => sync(context)),
                 IconButton(icon: Icon(Icons.restore), onPressed: resetDay),
                 IconButton(icon: Icon(Icons.arrow_right), onPressed: nextDay),
               ],
@@ -114,19 +124,28 @@ class _CompactModePageState extends State<CompactModePage> {
             flex: 1,
             child: PageView.builder(
               controller: pageController,
-              scrollDirection: Axis.horizontal,
               reverse: true,
-              itemBuilder: (context, offset) =>
-                  CalendarDay(day: today.add(Duration(days: -offset)), showHeader: false),
-              onPageChanged: (offset) => setState(() => dayOffset = -offset),
+              itemBuilder: (context, offset) => CalendarDay(day: today.add(Duration(days: -offset)), showHeader: false),
+              onPageChanged: handleDayChanged,
             ),
           ),
           Divider(),
           Flexible(
-              flex: 1,
-              child: (weeksAgo != 0)
-                  ? MiniWeekReport(start: sow, weeksAgo: weeksAgo)
-                  : GoalsForTheWeek())
+            flex: 1,
+            child: PageView.builder(
+              controller: weekPageController,
+              reverse: true,
+              itemBuilder: (context, offset) =>
+                  (offset != 0) ? MiniWeekReport(start: sow, weeksAgo: -offset) : GoalsForTheWeek(),
+              onPageChanged: (offset) {
+                final sow = weekday + offset * 7;
+                final nearestDayPage = pageController.page.clamp(sow - 6, sow);
+                if (pageController.page != nearestDayPage)
+                pageController.animateToPage(nearestDayPage,
+                  duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+              },
+            ),
+          )
         ],
       ),
       endDrawer: DrawerOverlay(drawerContent: EventList(popOnNav: true)),
