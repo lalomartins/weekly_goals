@@ -80,7 +80,7 @@ class _GoalsForTheWeekState extends State<GoalsForTheWeek> {
                           Goal goal = sortedGoals[categories[category]]
                               [index - categoryStart - 1];
                           if (goal != null) {
-                            Color color = Colors.black;
+                            Color color = Theme.of(context).colorScheme.onBackground;
                             if (goal.perWeek == null) {
                               if (goal.currentProgress == 0)
                                 color = Colors.grey;
@@ -95,7 +95,7 @@ class _GoalsForTheWeekState extends State<GoalsForTheWeek> {
                               if (goal.currentProgress >= goal.perWeek)
                                 color = Colors.green;
                               else if (progressLevel > 0)
-                                color = Colors.black;
+                                color = Theme.of(context).colorScheme.onBackground;
                               else if (progressLevel >= -(1 / 7))
                                 color = Colors.yellow.shade700;
                               else if (progressLevel > -0.5)
