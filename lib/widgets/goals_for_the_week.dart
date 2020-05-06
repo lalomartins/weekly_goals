@@ -90,8 +90,8 @@ class _GoalsForTheWeekState extends State<GoalsForTheWeek> {
                               final progressRatio =
                                   goal.currentProgress / goal.perWeek;
                               final progressLevel = progressRatio - _weekDone;
-                              print(
-                                  'Progress for ${goal.name} is ${goal.currentProgress}/${goal.perWeek}; ratio is ${progressRatio}, level is ${progressLevel}');
+                              // print(
+                              //     'Progress for ${goal.name} is ${goal.currentProgress}/${goal.perWeek}; ratio is ${progressRatio}, level is ${progressLevel}');
                               if (goal.currentProgress >= goal.perWeek)
                                 color = Colors.green;
                               else if (progressLevel > 0)

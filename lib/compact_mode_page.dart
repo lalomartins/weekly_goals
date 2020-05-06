@@ -22,24 +22,25 @@ class CompactModePage extends StatefulWidget {
 class _CompactModePageState extends State<CompactModePage> {
   int dayOffset = 0;
   var syncError;
+  PageController pageController;
   static final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
+  @override
+  void initState() {
+    pageController = PageController();
+    super.initState();
+  }
+
   void previousDay() {
-    setState(() {
-      dayOffset -= 1;
-    });
+    pageController.nextPage(duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
   }
 
   void nextDay() {
-    setState(() {
-      dayOffset += 1;
-    });
+    pageController.previousPage(duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
   }
 
   void resetDay() {
-    setState(() {
-      dayOffset = 0;
-    });
+    pageController.jumpToPage(0);
   }
 
   Future<void> sync(BuildContext context) async {
@@ -58,9 +59,10 @@ class _CompactModePageState extends State<CompactModePage> {
 
   @override
   Widget build(BuildContext context) {
-    final day = date().add(Duration(days: dayOffset));
+    final today =  date();
+    final day = today.add(Duration(days: dayOffset));
     final sow = day.subtract(Duration(days: weekOffset(day)));
-    final weeksAgo = date().difference(sow).inDays ~/ 7;
+    final weeksAgo = today.difference(sow).inDays ~/ 7;
     // final eow = sow.add(Duration(days: 6));
     return Scaffold(
       key: _scaffoldKey,
@@ -108,9 +110,23 @@ class _CompactModePageState extends State<CompactModePage> {
       ),
       body: Column(
         children: [
-          Flexible(flex: 1, child: CalendarDay(day: day, showHeader: false)),
+          Flexible(
+            flex: 1,
+            child: PageView.builder(
+              controller: pageController,
+              scrollDirection: Axis.horizontal,
+              reverse: true,
+              itemBuilder: (context, offset) =>
+                  CalendarDay(day: today.add(Duration(days: -offset)), showHeader: false),
+              onPageChanged: (offset) => setState(() => dayOffset = -offset),
+            ),
+          ),
           Divider(),
-          Flexible(flex: 1, child: (weeksAgo != 0) ? MiniWeekReport(start: sow, weeksAgo: weeksAgo) : GoalsForTheWeek())
+          Flexible(
+              flex: 1,
+              child: (weeksAgo != 0)
+                  ? MiniWeekReport(start: sow, weeksAgo: weeksAgo)
+                  : GoalsForTheWeek())
         ],
       ),
       endDrawer: DrawerOverlay(drawerContent: EventList(popOnNav: true)),
