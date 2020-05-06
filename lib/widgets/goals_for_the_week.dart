@@ -56,7 +56,7 @@ class _GoalsForTheWeekState extends State<GoalsForTheWeek> {
                       alignment: Alignment.center,
                       child: Padding(
                         padding: const EdgeInsets.only(top: 8.0),
-                        child: Text('Goals',
+                        child: Text('Goals for the week',
                             style: Theme.of(context).textTheme.caption),
                       ),
                     ),
