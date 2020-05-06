@@ -20,23 +20,36 @@ class CalendarPage extends StatefulWidget {
 class _CalendarPageState extends State<CalendarPage> {
   int weekOffset = 0;
   var syncError;
+  PageController pageController;
   static final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+
+  @override
+  void initState() {
+    pageController = PageController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
+  }
 
   void previousWeek() {
     setState(() {
-      weekOffset -= 1;
+      pageController.nextPage(duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
     });
   }
 
   void nextWeek() {
     setState(() {
-      weekOffset += 1;
+      pageController.previousPage(duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
     });
   }
 
   void resetWeek() {
     setState(() {
-      weekOffset = 0;
+      pageController.animateToPage(0, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
     });
   }
 
@@ -56,17 +69,16 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
-    final sow = startOfWeek().add(Duration(days: weekOffset * 7));
+    final thisWeek = startOfWeek();
+    final sow = thisWeek.add(Duration(days: weekOffset * 7));
     final eow = sow.add(Duration(days: 6));
     String weekFormatted;
     // Eventually we want to use local formats, but for now since I like it it Japanese,
     // until I add a locale override feature or something, I'll hardcode it
     if (sow.year != eow.year)
-      weekFormatted =
-          '${sow.year}年${sow.month}月${sow.day} — ${eow.year}年${eow.month}月${eow.day}日';
+      weekFormatted = '${sow.year}年${sow.month}月${sow.day} — ${eow.year}年${eow.month}月${eow.day}日';
     else if (sow.month != eow.month)
-      weekFormatted =
-          '${sow.year}年${sow.month}月${sow.day}日 — ${eow.month}月${eow.day}日';
+      weekFormatted = '${sow.year}年${sow.month}月${sow.day}日 — ${eow.month}月${eow.day}日';
     else
       weekFormatted = '${sow.year}年${sow.month}月${sow.day} — ${eow.day}日';
     return Scaffold(
@@ -75,19 +87,13 @@ class _CalendarPageState extends State<CalendarPage> {
         title: Text('Week of ' + weekFormatted),
         actions: weekOffset == 0
             ? <Widget>[
-                IconButton(
-                    icon: Icon(Icons.arrow_left), onPressed: previousWeek),
-                IconButton(
-                    icon: Icon(Icons.sync), onPressed: () => sync(context)),
-                IconButton(
-                    icon: Icon(Icons.list),
-                    onPressed: () => _scaffoldKey.currentState.openEndDrawer()),
+                IconButton(icon: Icon(Icons.arrow_left), onPressed: previousWeek),
+                IconButton(icon: Icon(Icons.sync), onPressed: () => sync(context)),
+                IconButton(icon: Icon(Icons.list), onPressed: () => _scaffoldKey.currentState.openEndDrawer()),
               ]
             : <Widget>[
-                IconButton(
-                    icon: Icon(Icons.arrow_left), onPressed: previousWeek),
-                IconButton(
-                    icon: Icon(Icons.sync), onPressed: () => sync(context)),
+                IconButton(icon: Icon(Icons.arrow_left), onPressed: previousWeek),
+                IconButton(icon: Icon(Icons.sync), onPressed: () => sync(context)),
                 IconButton(icon: Icon(Icons.restore), onPressed: resetWeek),
                 IconButton(icon: Icon(Icons.arrow_right), onPressed: nextWeek),
               ],
@@ -113,7 +119,13 @@ class _CalendarPageState extends State<CalendarPage> {
                 ),
               ),
       ),
-      body: Calendar(start: sow, weeksAgo: -weekOffset),
+      body: PageView.builder(
+        controller: pageController,
+        reverse: true,
+        itemBuilder: (context, offset) =>
+            Calendar(start: thisWeek.subtract(Duration(days: offset * 7)), weeksAgo: offset),
+        onPageChanged: (offset) => setState(() => weekOffset = -offset),
+      ),
       endDrawer: DrawerOverlay(drawerContent: EventList(popOnNav: true)),
     );
   }
