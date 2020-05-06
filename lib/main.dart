@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'compact_mode_page.dart';
 import 'config.dart';
 import 'add_screen.dart';
 import 'calendar_page.dart';
@@ -46,7 +47,13 @@ class MyApp extends StatelessWidget {
         darkTheme: wgDarkTheme,
         initialRoute: '/',
         routes: {
-          '/': (context) => CalendarPage(),
+          '/': (context) => OrientationBuilder(
+            builder: (BuildContext context, Orientation orientation) {
+              return orientation == Orientation.landscape
+              ? CalendarPage()
+              : CompactModePage();
+            },
+          ),
           'add': (context) => AddScreen(),
         },
         builder: (context, navi) {

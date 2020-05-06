@@ -1,5 +1,21 @@
 import 'config.dart';
 
+const Map<int, String> youbi = {
+  DateTime.sunday: '日',
+  DateTime.monday: '月',
+  DateTime.tuesday: '火',
+  DateTime.wednesday: '水',
+  DateTime.thursday: '木',
+  DateTime.friday: '金',
+  DateTime.saturday: '土',
+};
+
+DateTime date({DateTime dateTime, bool midnight = false}) {
+  dateTime = dateTime ?? DateTime.now();
+  final zh = DateTime(dateTime.year, dateTime.month, dateTime.day);
+  return midnight ? zh : zh.add(Duration(minutes: config.dayOffsetMinutes));
+}
+
 int weekOffset([DateTime when]) =>
     ((when ?? DateTime.now()).weekday - config.weekStartsOn) % 7;
 

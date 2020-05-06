@@ -59,7 +59,7 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
             } catch (e) {
               print('WARNING, failed to detect timezone');
             }
-            for (final row in await customSelectQuery('select * from events_old').get()) {
+            for (final row in await customSelect('select * from events_old').get()) {
               final event = events.map(row.data);
               var zone = loc.timeZone(event.timestamp.millisecondsSinceEpoch);
               await into(events).insert(event.copyWith(
