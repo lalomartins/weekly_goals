@@ -52,7 +52,7 @@ class _AddEventFormState extends State<AddEventForm> {
         'timestamp': now,
         'timezone': tz.local.name,
         'timezoneOffset': tz.local.currentTimeZone.offset ~/ 1000,
-        'realtime': true,
+        'real_time': true,
       };
     } else {
       event = _event.toJson();
@@ -90,9 +90,9 @@ class _AddEventFormState extends State<AddEventForm> {
             textField('description', multiline: true, validator: null),
             CheckboxListTile(
               title: Text('Real time'),
-              value: event['realTime'] ?? false,
+              value: event['real_time'] ?? false,
               onChanged: (newValue) =>
-                  setState(() => event['realTime'] = newValue),
+                  setState(() => event['real_time'] = newValue),
             ),
             Row(
               children: <Widget>[
