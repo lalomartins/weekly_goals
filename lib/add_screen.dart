@@ -1,3 +1,4 @@
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:strings/strings.dart';
@@ -156,22 +157,32 @@ class _AddEventFormState extends State<AddEventForm> {
         ));
   }
 
-  save(BuildContext context) {
+  save(BuildContext context) async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
-      Scaffold.of(context)
-          .showSnackBar(SnackBar(content: Text('Processing Data')));
+      final savingBar = Flushbar(
+        message: 'Processing Data',
+        backgroundColor: Theme.of(context).primaryColor,
+      )..show(context);
       try {
-        Provider.of<WeeklyGoalsDatabase>(context).createEventFromMap(event);
+        await Provider.of<WeeklyGoalsDatabase>(context).createEventFromMap(event);
+        savingBar.dismiss();
         Navigator.pop(context);
-        Scaffold.of(context).showSnackBar(SnackBar(
-            content: Text('Recorded'),
-            backgroundColor: Theme.of(context).primaryColor));
+        Flushbar(
+          message: 'Recorded',
+          backgroundColor: Theme.of(context).primaryColor,
+          icon: Icon(Icons.save, color: Theme.of(context).colorScheme.onPrimary),
+          duration: Duration(seconds: 30),
+        )..show(context);
       } catch (e) {
+        savingBar.dismiss();
         print(e);
-        Scaffold.of(context).showSnackBar(SnackBar(
-            content: Text('Failed to record'),
-            backgroundColor: Theme.of(context).errorColor));
+        Flushbar(
+          message: 'Failed to record',
+          backgroundColor: Theme.of(context).errorColor,
+          icon: Icon(Icons.error, color: Theme.of(context).colorScheme.onPrimary),
+          duration: Duration(seconds: 60),
+        )..show(context);
       }
     }
   }

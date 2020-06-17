@@ -177,4 +177,6 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
             [(u) => OrderingTerm(expression: u.name, mode: OrderingMode.asc)]))
       .map((cached) => Goal.copy(cached))
       .watch();
+
+  Future<void> deleteEvent(String uuid) => (delete(events)..where((e) => e.uuid.equals(uuid))).go();
 }
