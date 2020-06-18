@@ -172,7 +172,7 @@ class _EditEventFormState extends State<EditEventForm> {
         Flushbar(
           message: 'Failed to update',
           backgroundColor: Theme.of(context).errorColor,
-          icon: Icon(Icons.error, color: Theme.of(context).colorScheme.onPrimary),
+          icon: Icon(Icons.error, color: Theme.of(context).colorScheme.onError),
           duration: Duration(seconds: 60),
         )..show(context);
       }
@@ -202,7 +202,7 @@ class _EditEventFormState extends State<EditEventForm> {
       Flushbar(
         message: 'Failed to delete',
         backgroundColor: Theme.of(context).errorColor,
-        icon: Icon(Icons.error, color: Theme.of(context).colorScheme.onPrimary),
+        icon: Icon(Icons.error, color: Theme.of(context).colorScheme.onError),
         duration: Duration(seconds: 60),
       )..show(context);
     }
@@ -249,7 +249,7 @@ class _RestoreButton extends StatelessWidget {
       Flushbar(
         message: 'Failed to restore event',
         backgroundColor: Theme.of(context).primaryColor,
-        icon: Icon(Icons.error, color: Theme.of(context).colorScheme.onPrimary),
+        icon: Icon(Icons.error, color: Theme.of(context).colorScheme.onError),
         mainButton: _RestoreButton(message: 'retry', savedEvent: savedEvent),
         duration: Duration(seconds: 60),
       )..show(context);

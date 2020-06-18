@@ -180,7 +180,7 @@ class _AddEventFormState extends State<AddEventForm> {
         Flushbar(
           message: 'Failed to record',
           backgroundColor: Theme.of(context).errorColor,
-          icon: Icon(Icons.error, color: Theme.of(context).colorScheme.onPrimary),
+          icon: Icon(Icons.error, color: Theme.of(context).colorScheme.onError),
           duration: Duration(seconds: 60),
         )..show(context);
       }

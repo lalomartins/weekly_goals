@@ -1,3 +1,4 @@
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,7 +20,6 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
   int weekOffset = 0;
-  var syncError;
   PageController pageController;
   static final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
@@ -58,12 +58,26 @@ class _CalendarPageState extends State<CalendarPage> {
     final client = Provider.of<ServerClient>(context);
     try {
       await client.sync(db);
+      Flushbar(
+        message: 'Sync completed',
+        backgroundColor: Theme.of(context).primaryColor,
+        icon: Icon(Icons.sync, color: Theme.of(context).colorScheme.onPrimary),
+        duration: Duration(seconds: 30),
+      )..show(context);
     } catch (e) {
       print('Sync error!');
       print(e);
-      setState(() {
-        syncError = e;
-      });
+      Flushbar errorBar;
+      errorBar = Flushbar(
+        message: 'Sync error. Try again later, or check the logs.',
+        backgroundColor: Theme.of(context).errorColor,
+        icon: Icon(Icons.error, color: Theme.of(context).colorScheme.onError),
+        mainButton: FlatButton(
+          child: Text('dismiss', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+          onPressed: () => errorBar.dismiss(),
+        ),
+        duration: Duration(seconds: 60),
+      )..show(context);
     }
   }
 
@@ -97,27 +111,6 @@ class _CalendarPageState extends State<CalendarPage> {
                 IconButton(icon: Icon(Icons.restore), onPressed: resetWeek),
                 IconButton(icon: Icon(Icons.arrow_right), onPressed: nextWeek),
               ],
-        bottom: syncError == null
-            ? null
-            : PreferredSize(
-                preferredSize: Size.fromHeight(50.0),
-                child: MaterialBanner(
-                  content: Text(
-                    'Sync error. Try again later, or check the logs.',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  backgroundColor: Theme.of(context).errorColor,
-                  actions: [
-                    FlatButton(
-                      onPressed: () => setState(() => syncError = null),
-                      child: Text(
-                        'Dismiss',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    )
-                  ],
-                ),
-              ),
       ),
       body: PageView.builder(
         controller: pageController,
