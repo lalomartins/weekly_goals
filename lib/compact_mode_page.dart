@@ -1,3 +1,4 @@
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,7 +22,6 @@ class CompactModePage extends StatefulWidget {
 
 class _CompactModePageState extends State<CompactModePage> {
   int dayOffset = 0;
-  var syncError;
   PageController pageController;
   PageController weekPageController;
   static final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
@@ -55,14 +55,34 @@ class _CompactModePageState extends State<CompactModePage> {
   Future<void> sync(BuildContext context) async {
     final db = Provider.of<WeeklyGoalsDatabase>(context);
     final client = Provider.of<ServerClient>(context);
+    final syncingBar = Flushbar(
+        message: 'Sync in progress',
+        backgroundColor: Theme.of(context).primaryColor,
+      )..show(context);
     try {
       await client.sync(db);
+      syncingBar.dismiss();
+      Flushbar(
+        message: 'Sync completed',
+        backgroundColor: Theme.of(context).primaryColor,
+        icon: Icon(Icons.sync, color: Theme.of(context).colorScheme.onPrimary),
+        duration: Duration(seconds: 30),
+      )..show(context);
     } catch (e) {
+      syncingBar.dismiss();
       print('Sync error!');
       print(e);
-      setState(() {
-        syncError = e;
-      });
+      Flushbar errorBar;
+      errorBar = Flushbar(
+        message: 'Sync error. Try again later, or check the logs.',
+        backgroundColor: Theme.of(context).errorColor,
+        icon: Icon(Icons.error, color: Theme.of(context).colorScheme.onError),
+        mainButton: FlatButton(
+          child: Text('dismiss', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+          onPressed: () => errorBar.dismiss(),
+        ),
+        duration: Duration(seconds: 60),
+      )..show(context);
     }
   }
 
@@ -96,27 +116,6 @@ class _CompactModePageState extends State<CompactModePage> {
                 IconButton(icon: Icon(Icons.restore), onPressed: resetDay),
                 IconButton(icon: Icon(Icons.arrow_right), onPressed: nextDay),
               ],
-        bottom: syncError == null
-            ? null
-            : PreferredSize(
-                preferredSize: Size.fromHeight(50.0),
-                child: MaterialBanner(
-                  content: Text(
-                    'Sync error. Try again later, or check the logs.',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  backgroundColor: Theme.of(context).errorColor,
-                  actions: [
-                    FlatButton(
-                      onPressed: () => setState(() => syncError = null),
-                      child: Text(
-                        'Dismiss',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    )
-                  ],
-                ),
-              ),
       ),
       body: Column(
         children: [
