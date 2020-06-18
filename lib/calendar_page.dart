@@ -56,8 +56,13 @@ class _CalendarPageState extends State<CalendarPage> {
   Future<void> sync(BuildContext context) async {
     final db = Provider.of<WeeklyGoalsDatabase>(context);
     final client = Provider.of<ServerClient>(context);
+    final syncingBar = Flushbar(
+        message: 'Sync in progress',
+        backgroundColor: Theme.of(context).primaryColor,
+      )..show(context);
     try {
       await client.sync(db);
+      syncingBar.dismiss();
       Flushbar(
         message: 'Sync completed',
         backgroundColor: Theme.of(context).primaryColor,
@@ -65,6 +70,7 @@ class _CalendarPageState extends State<CalendarPage> {
         duration: Duration(seconds: 30),
       )..show(context);
     } catch (e) {
+      syncingBar.dismiss();
       print('Sync error!');
       print(e);
       Flushbar errorBar;
