@@ -137,6 +137,15 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
     return query.watch();
   }
 
+  Future<Event> findLatestEvent(String type, String name) =>
+    (select(events)
+      ..where((e) => e.type.equals(type) & e.name.equals(name))
+      ..orderBy([
+        (u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.desc)
+      ])
+      ..limit(1)
+    ).getSingle();
+
   Future<int> createEventFromMap(Map<String, dynamic> data) {
     bool copied = false;
     if (data['uuid'] == null) {
