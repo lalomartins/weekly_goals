@@ -10,3 +10,11 @@ CREATE TABLE events (
   additional TEXT NOT NULL DEFAULT '',
   synced DATETIME
 );
+
+
+-- find unique descriptions
+uniqueDescriptions: SELECT description, MIN(timestamp) AS timestamp
+  FROM events
+  WHERE type = :type AND name = :name
+  GROUP BY description
+  ORDER BY timestamp desc;

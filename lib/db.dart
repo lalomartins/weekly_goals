@@ -145,6 +145,11 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
       ])
       ..limit(1)
     ).getSingle();
+  
+  Future<List<String>> findEventDescriptions(String type, String name) =>
+    uniqueDescriptions(type, name)
+    .map((row) => row.description)
+    .get();
 
   Future<int> createEventFromMap(Map<String, dynamic> data) {
     bool copied = false;

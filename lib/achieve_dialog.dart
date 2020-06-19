@@ -23,20 +23,20 @@ class AchieveDialog extends StatefulWidget {
 
 class _AchieveDialogState extends State<AchieveDialog> {
   final _formKey = GlobalKey<FormState>();
+  final _descriptionKey = GlobalKey();
   final TextEditingController descriptionController = TextEditingController();
   bool descriptionWasEdited = false;
   Map<String, dynamic> event;
 
-  _AchieveDialogState(String name) :
-    event = {
-      'type': 'weekly goals',
-      'name': name ?? '',
-      'timestamp': DateTime.now(),
-      'timezone': tz.local.name,
-      'timezoneOffset': tz.local.currentTimeZone.offset ~/ 1000,
-      'real_time': true,
-    }
-  {}
+  _AchieveDialogState(String name)
+      : event = {
+          'type': 'weekly goals',
+          'name': name ?? '',
+          'timestamp': DateTime.now(),
+          'timezone': tz.local.name,
+          'timezoneOffset': tz.local.currentTimeZone.offset ~/ 1000,
+          'real_time': true,
+        } {}
 
   @override
   void didChangeDependencies() {
@@ -54,13 +54,7 @@ class _AchieveDialogState extends State<AchieveDialog> {
     if (descriptionWasEdited || event['name'].isEmpty) return;
     final _dbProvider = Provider.of<WeeklyGoalsDatabase>(context);
     final latest = await _dbProvider.findLatestEvent('weekly goals', event['name']);
-    setState(() {
-      if (latest == null)
-        event['description'] = '';
-      else
-        event['description'] = latest.description;
-      descriptionController.text = event['description'];
-    });
+    descriptionController.text = latest?.description ?? '';
   }
 
   Widget goalPicker(BuildContext context) {
@@ -113,6 +107,46 @@ class _AchieveDialogState extends State<AchieveDialog> {
         });
   }
 
+  void searchDescriptionPopup() async {
+    final _dbProvider = Provider.of<WeeklyGoalsDatabase>(context);
+    final descriptions = await _dbProvider.findEventDescriptions('weekly goals', event['name']);
+    if (descriptions.length == 0 || (descriptions.length == 1 && descriptions.first.isEmpty)) {
+      showDialog(
+        context: context,
+        child: AlertDialog(
+          title: Text('Nothing found'),
+          content: Text('There are no descriptions for this goal in the database.'),
+        ),
+      );
+      if (!descriptionWasEdited) descriptionController.text = '';
+    } else if (descriptions.length == 1 && !descriptionWasEdited) {
+      descriptionController.text = '';
+    } else {
+      final RenderBox row = _descriptionKey.currentContext.findRenderObject() as RenderBox;
+      final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+      final RelativeRect position = RelativeRect.fromRect(
+        Rect.fromPoints(
+          row.localToGlobal(Offset.zero, ancestor: overlay),
+          row.localToGlobal(row.size.bottomRight(Offset.zero), ancestor: overlay),
+        ),
+        Offset.zero & overlay.size,
+      );
+      final choice = await showMenu<String>(
+        context: context,
+        position: position,
+        items: descriptions.map(
+          (d) => PopupMenuItem<String>(
+            value: d,
+            child: d.isNotEmpty
+              ? Text(d)
+              : Text('(empty)', style: TextStyle(fontStyle: FontStyle.italic)),
+          ),
+        ).toList(),
+      );
+      if (choice != null) descriptionController.text = choice;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     print('build; description is ${event["description"]}');
@@ -124,15 +158,34 @@ class _AchieveDialogState extends State<AchieveDialog> {
           child: ListBody(
             children: <Widget>[
               goalPicker(context),
-              TextFormField(
-                controller: descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
-                onSaved: (value) {
-                  setState(() {
-                    event['description'] = value;
-                  });
-                },
-                maxLines: 5,
+              Row(
+                key: _descriptionKey,
+                children: <Widget>[
+                  Expanded(
+                    child: TextFormField(
+                      controller: descriptionController,
+                      decoration: InputDecoration(labelText: 'Description'),
+                      onSaved: (value) {
+                        setState(() {
+                          event['description'] = value;
+                        });
+                      },
+                      maxLines: 5,
+                    ),
+                  ),
+                  Column(
+                    children: <Widget>[
+                      IconButton(
+                        icon: Icon(Icons.clear),
+                        onPressed: () => descriptionController.text = '',
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.search),
+                        onPressed: searchDescriptionPopup,
+                      ),
+                    ],
+                  ),
+                ],
               ),
               Row(
                 children: <Widget>[
@@ -186,17 +239,17 @@ class _AchieveDialogState extends State<AchieveDialog> {
                         });
                       },
                       validator: (String value) {
-                      if (value.isEmpty) return null;
-                      try {
-                        var v = loadYaml(value);
-                        if (v is Map)
-                          return null;
-                        else
-                          return 'If additional data is provided, it must be a mapping';
-                      } catch (e) {
-                        return 'Invalid YAML';
-                      }
-                    },
+                        if (value.isEmpty) return null;
+                        try {
+                          var v = loadYaml(value);
+                          if (v is Map)
+                            return null;
+                          else
+                            return 'If additional data is provided, it must be a mapping';
+                        } catch (e) {
+                          return 'Invalid YAML';
+                        }
+                      },
                       maxLines: 5,
                     ),
                   ),

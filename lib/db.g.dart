@@ -828,8 +828,32 @@ abstract class _$WeeklyGoalsDatabase extends GeneratedDatabase {
   CachedGoals get cachedGoals => _cachedGoals ??= CachedGoals(this);
   Events _events;
   Events get events => _events ??= Events(this);
+  UniqueDescriptionsResult _rowToUniqueDescriptionsResult(QueryRow row) {
+    return UniqueDescriptionsResult(
+      description: row.readString('description'),
+      timestamp: row.readDateTime('timestamp'),
+    );
+  }
+
+  Selectable<UniqueDescriptionsResult> uniqueDescriptions(
+      String type, String name) {
+    return customSelect(
+        'SELECT description, MIN(timestamp) AS timestamp\n  FROM events\n  WHERE type = :type AND name = :name\n  GROUP BY description\n  ORDER BY timestamp desc',
+        variables: [Variable.withString(type), Variable.withString(name)],
+        readsFrom: {events}).map(_rowToUniqueDescriptionsResult);
+  }
+
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [cachedGoals, events];
+}
+
+class UniqueDescriptionsResult {
+  final String description;
+  final DateTime timestamp;
+  UniqueDescriptionsResult({
+    this.description,
+    this.timestamp,
+  });
 }
