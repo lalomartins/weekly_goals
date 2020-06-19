@@ -1,12 +1,11 @@
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:strings/strings.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:yaml/yaml.dart';
 
-import 'add_screen.dart';
 import 'db.dart';
+import 'widgets/map_text_form_field.dart';
 
 class EditScreen extends StatelessWidget {
   final _formKey = GlobalKey<_EditEventFormState>();
@@ -45,17 +44,14 @@ class _EditEventFormState extends State<EditEventForm> {
     event['timestamp'] = _event.timestamp;
   }
 
-  Widget textField(String name, {String label, validator = validateNonEmpty, bool multiline = false}) {
-    return TextFormField(
-      decoration: InputDecoration(labelText: label ?? capitalize(name)),
-      initialValue: event[name] ?? '',
-      onSaved: (value) {
-        setState(() {
-          event[name] = value;
-        });
-      },
+  Widget textField(String name, {String label, validator, bool multiline}) {
+    return MapTextFormField(
+      map: event,
+      setState: setState,
+      name: name,
+      label: label,
       validator: validator,
-      maxLines: multiline ? 5 : 1,
+      multiline: multiline,
     );
   }
 

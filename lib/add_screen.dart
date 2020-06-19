@@ -1,11 +1,11 @@
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:strings/strings.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:yaml/yaml.dart';
 
 import 'db.dart';
+import 'widgets/map_text_form_field.dart';
 
 class AddScreen extends StatelessWidget {
   final _formKey = GlobalKey<_AddEventFormState>();
@@ -35,13 +35,6 @@ class AddEventForm extends StatefulWidget {
   _AddEventFormState createState() => _AddEventFormState(event);
 }
 
-String validateNonEmpty(String value) {
-  if (value.isEmpty) {
-    return 'Please enter some text';
-  }
-  return null;
-}
-
 class _AddEventFormState extends State<AddEventForm> {
   final _formKey = GlobalKey<FormState>();
   Map<String, dynamic> event;
@@ -65,18 +58,14 @@ class _AddEventFormState extends State<AddEventForm> {
     }
   }
 
-  Widget textField(String name,
-      {String label, validator = validateNonEmpty, bool multiline = false}) {
-    return TextFormField(
-      decoration: InputDecoration(labelText: label ?? capitalize(name)),
-      initialValue: event[name] ?? '',
-      onSaved: (value) {
-        setState(() {
-          event[name] = value;
-        });
-      },
+  Widget textField(String name, {String label, validator, bool multiline}) {
+    return MapTextFormField(
+      map: event,
+      setState: setState,
+      name: name,
+      label: label,
       validator: validator,
-      maxLines: multiline ? 5 : 1,
+      multiline: multiline,
     );
   }
 
@@ -92,8 +81,7 @@ class _AddEventFormState extends State<AddEventForm> {
             CheckboxListTile(
               title: Text('Real time'),
               value: event['real_time'] ?? false,
-              onChanged: (newValue) =>
-                  setState(() => event['real_time'] = newValue),
+              onChanged: (newValue) => setState(() => event['real_time'] = newValue),
             ),
             Row(
               children: <Widget>[
@@ -112,8 +100,7 @@ class _AddEventFormState extends State<AddEventForm> {
 
                     final selectedTime = await showTimePicker(
                       context: context,
-                      initialTime: TimeOfDay.fromDateTime(
-                          event['timestamp'] as DateTime),
+                      initialTime: TimeOfDay.fromDateTime(event['timestamp'] as DateTime),
                     );
                     if (selectedTime == null) return;
 
@@ -146,8 +133,7 @@ class _AddEventFormState extends State<AddEventForm> {
               }
             }),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 16.0, horizontal: 10.0),
+              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 10.0),
               child: RaisedButton(
                 onPressed: () => save(context),
                 child: Text('Record'),
