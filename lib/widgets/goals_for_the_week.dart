@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../achieve_dialog.dart';
 import '../date_util.dart';
 import '../db.dart';
 import 'section_title.dart';
@@ -104,38 +105,41 @@ class _GoalsForTheWeekState extends State<GoalsForTheWeek> {
                                 color = Colors.red;
                             }
                             final style = TextStyle(color: color);
-                            return Padding(
-                              padding:
-                                  ListTileTheme.of(context).contentPadding ??
-                                      EdgeInsets.symmetric(horizontal: 16.0),
-                              child: Row(
-                                children: <Widget>[
-                                  Text(goal.name, style: style),
-                                  Spacer(),
-                                  RichText(
-                                      textAlign: TextAlign.right,
-                                      text: TextSpan(
-                                        children: [
-                                              TextSpan(
-                                                  text: (goal.currentProgress)
-                                                      .toString()),
-                                            ] +
-                                            (goal.perWeek == null
-                                                ? []
-                                                : [
-                                                    TextSpan(
-                                                        text: ('/'),
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                    TextSpan(
-                                                        text: (goal.perWeek)
-                                                            .toString()),
-                                                  ]),
-                                        style: style,
-                                      )),
-                                ],
+                            return InkWell(
+                              onTap: () => AchieveDialog.popup(context, goal.name),
+                              child: Padding(
+                                padding:
+                                    ListTileTheme.of(context).contentPadding ??
+                                        EdgeInsets.symmetric(horizontal: 16.0),
+                                child: Row(
+                                  children: <Widget>[
+                                    Text(goal.name, style: style),
+                                    Spacer(),
+                                    RichText(
+                                        textAlign: TextAlign.right,
+                                        text: TextSpan(
+                                          children: [
+                                                TextSpan(
+                                                    text: (goal.currentProgress)
+                                                        .toString()),
+                                              ] +
+                                              (goal.perWeek == null
+                                                  ? []
+                                                  : [
+                                                      TextSpan(
+                                                          text: ('/'),
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold)),
+                                                      TextSpan(
+                                                          text: (goal.perWeek)
+                                                              .toString()),
+                                                    ]),
+                                          style: style,
+                                        )),
+                                  ],
+                                ),
                               ),
                             );
                           }

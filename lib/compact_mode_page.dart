@@ -2,6 +2,7 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'achieve_dialog.dart';
 import 'date_util.dart';
 import 'db.dart';
 import 'event_list.dart';
@@ -107,6 +108,7 @@ class _CompactModePageState extends State<CompactModePage> {
         actions: dayOffset == 0
             ? <Widget>[
                 IconButton(icon: Icon(Icons.arrow_left), onPressed: previousDay),
+                IconButton(icon: Icon(Icons.check_circle_outline), onPressed: () => AchieveDialog.popup(context)),
                 IconButton(icon: Icon(Icons.sync), onPressed: () => sync(context)),
                 IconButton(icon: Icon(Icons.list), onPressed: () => _scaffoldKey.currentState.openEndDrawer()),
               ]
