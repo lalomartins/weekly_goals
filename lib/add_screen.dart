@@ -35,9 +35,8 @@ class AddEventForm extends StatefulWidget {
   _AddEventFormState createState() => _AddEventFormState(event);
 }
 
-class _AddEventFormState extends State<AddEventForm> {
+class _AddEventFormState extends EventEditorState<AddEventForm> {
   final _formKey = GlobalKey<FormState>();
-  Map<String, dynamic> event;
 
   _AddEventFormState(_event) {
     final now = DateTime.now();
@@ -56,17 +55,6 @@ class _AddEventFormState extends State<AddEventForm> {
       event['timezone'] = tz.local.name;
       event['timezoneOffset'] = tz.local.currentTimeZone.offset ~/ 1000;
     }
-  }
-
-  Widget textField(String name, {String label, validator, bool multiline}) {
-    return MapTextFormField(
-      map: event,
-      setState: setState,
-      name: name,
-      label: label,
-      validator: validator,
-      multiline: multiline,
-    );
   }
 
   @override

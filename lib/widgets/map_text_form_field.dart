@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:strings/strings.dart';
 
@@ -11,6 +10,26 @@ String validateNonEmpty(String value) {
   return null;
 }
 
+abstract class EventEditorState<T extends StatefulWidget> extends State<T> {
+  Map<String, dynamic> event;
+
+  Widget textField(
+    String name, {
+    String label,
+    validator = validateNonEmpty,
+    bool multiline = false,
+  }) {
+    return MapTextFormField(
+      name,
+      map: event,
+      setState: setState,
+      label: label,
+      validator: validator,
+      multiline: multiline,
+    );
+  }
+}
+
 /// A text field that edits an entry in a map
 class MapTextFormField extends StatelessWidget {
   final String name;
@@ -20,9 +39,9 @@ class MapTextFormField extends StatelessWidget {
   final String Function(String) validator;
   final bool multiline;
 
-  const MapTextFormField({
+  const MapTextFormField(
+    this.name, {
     Key key,
-    @required this.name,
     @required this.map,
     this.setState = _defaultSetState,
     String this.label,

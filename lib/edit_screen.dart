@@ -35,24 +35,12 @@ class EditEventForm extends StatefulWidget {
   _EditEventFormState createState() => _EditEventFormState(event);
 }
 
-class _EditEventFormState extends State<EditEventForm> {
+class _EditEventFormState extends EventEditorState<EditEventForm> {
   final _formKey = GlobalKey<FormState>();
-  Map<String, dynamic> event;
 
   _EditEventFormState(_event) {
     event = _event.toJson();
     event['timestamp'] = _event.timestamp;
-  }
-
-  Widget textField(String name, {String label, validator, bool multiline}) {
-    return MapTextFormField(
-      map: event,
-      setState: setState,
-      name: name,
-      label: label,
-      validator: validator,
-      multiline: multiline,
-    );
   }
 
   @override
