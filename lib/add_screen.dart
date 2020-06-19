@@ -5,7 +5,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:yaml/yaml.dart';
 
 import 'db.dart';
-import 'widgets/map_text_form_field.dart';
+import 'widgets/event_editor_state.dart';
 
 class AddScreen extends StatelessWidget {
   final _formKey = GlobalKey<_AddEventFormState>();
