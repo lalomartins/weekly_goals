@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:grpc/grpc.dart';
 import 'package:moor/moor.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:weekly_goals/generated/google/protobuf/timestamp.pb.dart';
-import 'package:weekly_goals/generated/service.pbgrpc.dart';
-import 'package:weekly_goals/generated/types.pb.dart' as pbTypes;
 
 import 'config.dart';
 import 'db.dart';
+import 'generated/google/protobuf/timestamp.pb.dart';
+import 'generated/service.pbgrpc.dart';
+import 'generated/types.pb.dart' as pbTypes;
 
 final _dummyAccount = utf8.encode('dummy');
 const _applicationId = 'lalomartins.info/apps/weekly-goals';
