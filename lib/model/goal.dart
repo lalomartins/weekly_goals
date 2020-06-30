@@ -1,3 +1,4 @@
+import '../config.dart';
 import '../db.dart';
 
 class Goal extends CachedGoal {
@@ -8,8 +9,9 @@ class Goal extends CachedGoal {
     super(id: other.id, name: other.name, category: other.category, perWeek: other.perWeek, dailyAmountMatters: other.dailyAmountMatters);
 
   static void computeProgress(List<Goal> goals, List<Event> events) {
-    Map<String, Goal> map = Map();
-    Map<String, Set<int>> weekdayChecks = Map();
+    final Map<String, Goal> map = Map();
+    final Map<String, Set<int>> weekdayChecks = Map();
+    final dayOffset = config.dayOffset;
     goals.forEach((goal) {
       goal.currentProgress = 0;
       map[goal.name] = goal;
@@ -21,8 +23,9 @@ class Goal extends CachedGoal {
         goal.currentProgress++;
       else {
         weekdayChecks.putIfAbsent(goal.name, () => Set());
-        if (!weekdayChecks[goal.name].contains(event.timestamp.weekday)) {
-          weekdayChecks[goal.name].add(event.timestamp.weekday);
+        final timestamp = event.timestamp.subtract(dayOffset);
+        if (!weekdayChecks[goal.name].contains(timestamp.weekday)) {
+          weekdayChecks[goal.name].add(timestamp.weekday);
           goal.currentProgress++;
         }
       }
