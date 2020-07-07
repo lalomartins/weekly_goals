@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:yaml/yaml.dart';
 
 import '../config.dart';
+import '../date_util.dart';
 import '../db.dart';
 
 final _memCache = ExpireCache<DateTime, List<Goal>>(expireDuration: Duration(minutes: 15), sizeLimit: 52);
@@ -64,15 +65,17 @@ class Goal extends CachedGoal {
     return map;
   }
 
-  static Future<List<Goal>> goalsAsOf({DateTime when, @required WeeklyGoalsDatabase db}) async {
-    if (_memCache.containsKey(when)) return _memCache.get(when);
+  static Future<List<Goal>> goalsAsOf({DateTime when, @required WeeklyGoalsDatabase db, clearCache: false}) async {
+    if (clearCache) _memCache.clear();
+    else if (_memCache.containsKey(when)) return _memCache.get(when);
 
     final events = await db.getEvents(type: 'set goal', until: when);
     final map = Map<String, Map<String, Goal>>();
     final goals = List<Goal>();
+    final effectDate = when ?? startOfWeek(weeksAgo: -1, midnight: true);
     for (final event in events) {
       final YamlMap data = loadYaml(event.additional);
-      if (when != null && data['immediate'] == false && event.timestamp.add(Duration(days: 7)).isAfter(when)) continue;
+      if (data['immediate'] == false && event.timestamp.add(Duration(days: 7)).isAfter(effectDate)) continue;
       final goal = map.putIfAbsent(data['category'], () => Map()).putIfAbsent(data['name'], () {
         final goal = Goal(
           category: data['category'],

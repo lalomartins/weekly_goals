@@ -177,11 +177,10 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
           .watch();
   
   Future<void> refreshGoals() async {
-    final newGoals = await Goal.goalsAsOf(db: this);
+    final newGoals = await Goal.goalsAsOf(db: this, clearCache: true);
     await delete(cachedGoals).go();
     for (final goal in newGoals) {
       into(cachedGoals).insert(goal);
     }
-    print('cached goals updated');
   }
 }
