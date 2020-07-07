@@ -108,18 +108,7 @@ class _AddEventFormState extends EventEditorState<AddEventForm> {
                 ),
               ],
             ),
-            textField('additional', multiline: true, validator: (String value) {
-              if (value.isEmpty) return null;
-              try {
-                var v = loadYaml(value);
-                if (v is Map)
-                  return null;
-                else
-                  return 'If additional data is provided, it must be a mapping';
-              } catch (e) {
-                return 'Invalid YAML';
-              }
-            }),
+            yamlField('additional', multiline: true),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 10.0),
               child: RaisedButton(
@@ -134,6 +123,7 @@ class _AddEventFormState extends EventEditorState<AddEventForm> {
   save(BuildContext context) async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
+
       final savingBar = Flushbar(
         message: 'Processing Data',
         backgroundColor: Theme.of(context).primaryColor,

@@ -17,19 +17,18 @@ class MiniWeekReport extends StatelessWidget {
   Widget build(BuildContext context) {
     final _dbProvider = Provider.of<WeeklyGoalsDatabase>(context);
 
-    return StreamBuilder<List<Goal>>(
-      // TODO calculate the goals for past weeks properly
-      stream: _dbProvider.watchCurrentGoals(),
+    return FutureBuilder<List<Goal>>(
+      future: Goal.goalsAsOf(when: start.add(Duration(days: 7)), db: _dbProvider),
       builder: (context, goalsSnapshot) {
-        final currentGoals = goalsSnapshot.data ?? [];
-        final sortedGoals = Goal.sortByCategory(currentGoals);
-        final categories = sortedGoals.keys.toList();
+        final computedGoals = goalsSnapshot.data ?? [];
+        final sortedGoals = Goal.sortByCategory(computedGoals);
+        final categories = sortedGoals.keys.toList()..sort();
 
         return StreamBuilder<List<Event>>(
           stream: _dbProvider.watchWeekEvents(type: 'weekly goals', weeksAgo: weeksAgo),
           builder: (context, eventsSnapshot) {
-            if (eventsSnapshot.hasData && currentGoals.length != 0)
-              Goal.computeProgress(currentGoals, eventsSnapshot.data);
+            if (eventsSnapshot.hasData && computedGoals.length != 0)
+              Goal.computeProgress(computedGoals, eventsSnapshot.data);
 
             return Column(
               children: <Widget>[
@@ -37,13 +36,13 @@ class MiniWeekReport extends StatelessWidget {
                   alignment: Alignment.center,
                   child: Padding(
                     padding: const EdgeInsets.only(top: 8.0),
-                    child: Text('TODO: current goals are displayed, actual week goals might have been different',
+                    child: Text(computedGoals.length == 0 ? 'No goals this week' : 'Week results',
                         style: Theme.of(context).textTheme.caption),
                   ),
                 ),
                 Expanded(
                   child: ListView.builder(
-                    itemCount: currentGoals.length + categories.length,
+                    itemCount: computedGoals.length + categories.length,
                     itemBuilder: (context, index) {
                       int i = -1;
                       int category = 0;

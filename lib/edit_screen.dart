@@ -94,18 +94,7 @@ class _EditEventFormState extends EventEditorState<EditEventForm> {
                 ),
               ],
             ),
-            textField('additional', multiline: true, validator: (String value) {
-              if (value.isEmpty) return null;
-              try {
-                var v = loadYaml(value);
-                if (v is Map)
-                  return null;
-                else
-                  return 'If additional data is provided, it must be a mapping';
-              } catch (e) {
-                return 'Invalid YAML';
-              }
-            }),
+            yamlField('additional', multiline: true),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 10.0),
               child: Row(

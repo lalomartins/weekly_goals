@@ -1,12 +1,35 @@
+import 'package:expire_cache/expire_cache.dart';
+import 'package:flutter/foundation.dart';
+import 'package:yaml/yaml.dart';
+
 import '../config.dart';
 import '../db.dart';
 
-class Goal extends CachedGoal {
-  int currentProgress;
+final _memCache = ExpireCache<DateTime, List<Goal>>(expireDuration: Duration(minutes: 15), sizeLimit: 52);
 
-  Goal.copy(CachedGoal other, {bool resetProgress}) :
-    currentProgress = (other is Goal && !resetProgress) ? other.currentProgress : 0,
-    super(id: other.id, name: other.name, category: other.category, perWeek: other.perWeek, dailyAmountMatters: other.dailyAmountMatters);
+class Goal extends CachedGoal {
+  String name;
+  String category;
+  int perWeek;
+  bool dailyAmountMatters;
+  int currentProgress;
+  Event created, updated, removed;
+
+  Goal({
+    this.category,
+    this.name,
+    this.perWeek,
+    this.dailyAmountMatters,
+    this.created,
+    this.updated,
+  });
+
+  Goal.copy(CachedGoal other, {bool resetProgress})
+      : currentProgress = (other is Goal && !resetProgress) ? other.currentProgress : 0,
+        name = other.name,
+        category = other.category,
+        perWeek = other.perWeek,
+        dailyAmountMatters = other.dailyAmountMatters;
 
   static void computeProgress(List<Goal> goals, List<Event> events) {
     final Map<String, Goal> map = Map();
@@ -39,5 +62,42 @@ class Goal extends CachedGoal {
       map[goal.category].add(goal);
     });
     return map;
+  }
+
+  static Future<List<Goal>> goalsAsOf({DateTime when, @required WeeklyGoalsDatabase db}) async {
+    if (_memCache.containsKey(when)) return _memCache.get(when);
+
+    final events = await db.getEvents(type: 'set goal', until: when);
+    final map = Map<String, Map<String, Goal>>();
+    final goals = List<Goal>();
+    for (final event in events) {
+      final YamlMap data = loadYaml(event.additional);
+      if (data['immediate'] == false && event.timestamp.add(Duration(days: 7)).isAfter(when)) continue;
+      final goal = map.putIfAbsent(data['category'], () => Map()).putIfAbsent(data['name'], () {
+        final goal = Goal(
+          category: data['category'],
+          name: data['name'],
+          perWeek: data['perWeek'],
+          dailyAmountMatters: data['dailyAmountMatters'] ?? true,
+          created: event,
+        );
+        goals.add(goal);
+        return goal;
+      });
+      if (data['remove'] == true) {
+        goal.removed = event;
+      } else {
+        goal.removed = null;
+        goal.updated = event;
+        if (data.containsKey('perWeek')) goal.perWeek = data['perWeek'];
+        if (data.containsKey('dailyAmountMatters')) goal.dailyAmountMatters = data['dailyAmountMatters'] ?? false;
+      }
+    }
+
+    goals.removeWhere((goal) => goal.removed != null);
+
+    if (when != null) _memCache.set(when, goals);
+
+    return goals;
   }
 }

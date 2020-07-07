@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
@@ -8,7 +7,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:uuid/uuid.dart';
-import 'package:yaml/yaml.dart';
 
 // import 'config.dart';
 import 'date_util.dart';
@@ -83,73 +81,69 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
         },
       );
 
-  Stream<List<Event>> get watchAllEvents => (select(events)
-        ..orderBy([
-          (u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.desc)
-        ]))
-      .watch();
+  Stream<List<Event>> get watchAllEvents =>
+      (select(events)..orderBy([(u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.desc)])).watch();
 
   Future<List<Event>> get unsyncedEvents => (select(events)
         ..where((t) => isNull(t.synced))
-        ..orderBy([
-          (u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.asc)
-        ]))
+        ..orderBy([(u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.asc)]))
       .get();
 
+  Future<List<Event>> getEvents({String type, DateTime until}) {
+    final query = select(events);
+    if (type != null && until != null) {
+      query.where((t) => t.timestamp.isSmallerOrEqualValue(until) & t.type.equals(type));
+    } else if (type != null) {
+      query.where((t) => t.type.equals(type));
+    } else if (until != null) {
+      query.where((t) => t.timestamp.isSmallerOrEqualValue(until));
+    }
+    query.orderBy([(u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.asc)]);
+    return query.get();
+  }
+
   Stream<List<Event>> watchRecentEvents({int days}) => (select(events)
-        ..where((t) => t.timestamp.isBiggerOrEqualValue(
-            DateTime.now().subtract(Duration(days: days))))
-        ..orderBy([
-          (u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.desc)
-        ]))
+        ..where((t) => t.timestamp.isBiggerOrEqualValue(DateTime.now().subtract(Duration(days: days))))
+        ..orderBy([(u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.desc)]))
       .watch();
 
   Stream<List<Event>> watchWeekEvents({int weeksAgo = 0, String type}) {
     final sow = startOfWeek(weeksAgo: weeksAgo);
     final query = select(events);
     if (type == null)
-      query.where((t) =>
-          t.timestamp.isBiggerOrEqualValue(sow) &
-          t.timestamp.isSmallerThanValue(sow.add(Duration(days: 7))));
+      query.where(
+          (t) => t.timestamp.isBiggerOrEqualValue(sow) & t.timestamp.isSmallerThanValue(sow.add(Duration(days: 7))));
     else
       query.where((t) =>
           t.timestamp.isBiggerOrEqualValue(sow) &
           t.timestamp.isSmallerThanValue(sow.add(Duration(days: 7))) &
           t.type.equals(type));
-    query.orderBy(
-        [(u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.asc)]);
+    query.orderBy([(u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.asc)]);
     return query.watch();
   }
 
   Stream<List<Event>> watchDayEvents({DateTime day, String type}) {
     final query = select(events);
     if (type == null)
-      query.where((t) =>
-          t.timestamp.isBiggerOrEqualValue(day) &
-          t.timestamp.isSmallerThanValue(day.add(Duration(days: 1))));
+      query.where(
+          (t) => t.timestamp.isBiggerOrEqualValue(day) & t.timestamp.isSmallerThanValue(day.add(Duration(days: 1))));
     else
       query.where((t) =>
           t.timestamp.isBiggerOrEqualValue(day) &
           t.timestamp.isSmallerThanValue(day.add(Duration(days: 1))) &
           t.type.equals(type));
-    query.orderBy(
-        [(u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.asc)]);
+    query.orderBy([(u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.asc)]);
     return query.watch();
   }
 
-  Future<Event> findLatestEvent(String type, String name) =>
-    (select(events)
-      ..where((e) => e.type.equals(type) & e.name.equals(name))
-      ..orderBy([
-        (u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.desc)
-      ])
-      ..limit(1)
-    ).getSingle();
-  
+  Future<Event> findLatestEvent(String type, String name) => (select(events)
+        ..where((e) => e.type.equals(type) & e.name.equals(name))
+        ..orderBy([(u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.desc)])
+        ..limit(1))
+      .getSingle();
+
   Future<List<String>> findEventDescriptions(String type, String name) =>
-    uniqueDescriptions(type, name)
-    .map((row) => row.description)
-    .get();
+      uniqueDescriptions(type, name).map((row) => row.description).get();
 
   Future<int> createEventFromMap(Map<String, dynamic> data) {
     bool copied = false;
@@ -166,18 +160,7 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
     if (data['timestamp'] is DateTime) {
       data = data.map((k, v) => MapEntry(k, v));
       copied = true;
-      data['timestamp'] =
-          (data['timestamp'] as DateTime).millisecondsSinceEpoch;
-    }
-    String additional = data['additional'];
-    if (additional != null &&
-        additional.isNotEmpty &&
-        !additional.startsWith('{')) {
-      if (!copied) {
-        data = data.map((k, v) => MapEntry(k, v));
-        copied = true;
-      }
-      data['additional'] = json.encode(loadYaml(additional));
+      data['timestamp'] = (data['timestamp'] as DateTime).millisecondsSinceEpoch;
     }
     final event = Event.fromJson(data);
     return into(events).insert(event);
@@ -186,11 +169,10 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
   Future<void> updateEvent(Event event) => update(events).replace(event);
   Future<void> upsertEvent(EventsCompanion event) => into(events).insertOnConflictUpdate(event);
 
-  Stream<List<Goal>> watchCurrentGoals() => (select(cachedGoals)
-        ..orderBy(
-            [(u) => OrderingTerm(expression: u.name, mode: OrderingMode.asc)]))
-      .map((cached) => Goal.copy(cached))
-      .watch();
+  Stream<List<Goal>> watchCurrentGoals() =>
+      (select(cachedGoals)..orderBy([(u) => OrderingTerm(expression: u.name, mode: OrderingMode.asc)]))
+          .map((cached) => Goal.copy(cached))
+          .watch();
 
   Future<void> deleteEvent(String uuid) => (delete(events)..where((e) => e.uuid.equals(uuid))).go();
 }
