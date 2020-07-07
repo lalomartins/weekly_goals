@@ -72,7 +72,7 @@ class Goal extends CachedGoal {
     final goals = List<Goal>();
     for (final event in events) {
       final YamlMap data = loadYaml(event.additional);
-      if (data['immediate'] == false && event.timestamp.add(Duration(days: 7)).isAfter(when)) continue;
+      if (when != null && data['immediate'] == false && event.timestamp.add(Duration(days: 7)).isAfter(when)) continue;
       final goal = map.putIfAbsent(data['category'], () => Map()).putIfAbsent(data['name'], () {
         final goal = Goal(
           category: data['category'],

@@ -113,6 +113,7 @@ class ServerClient {
         }
         i++;
       }
+      db.refreshGoals();
       print('sync finished');
     } finally {
       syncing = false;

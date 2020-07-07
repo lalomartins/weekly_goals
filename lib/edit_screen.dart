@@ -130,7 +130,9 @@ class _EditEventFormState extends EventEditorState<EditEventForm> {
       try {
         final data = event.map((k, v) => MapEntry(k, v));
         data['timestamp'] = event['timestamp'].millisecondsSinceEpoch;
-        await Provider.of<WeeklyGoalsDatabase>(context).updateEvent(Event.fromJson(data));
+        final db = Provider.of<WeeklyGoalsDatabase>(context);
+        await db.updateEvent(Event.fromJson(data));
+        if (event['type'] == 'set goal' || widget.event.type == 'set goal') await db.refreshGoals();
         savingBar.dismiss();
         Navigator.pop(context);
         Flushbar(
@@ -159,7 +161,9 @@ class _EditEventFormState extends EventEditorState<EditEventForm> {
     )..show(context);
     final savedEvent = widget.event;
     try {
-      await Provider.of<WeeklyGoalsDatabase>(context).deleteEvent(widget.event.uuid);
+      final db = Provider.of<WeeklyGoalsDatabase>(context);
+      await db.deleteEvent(widget.event.uuid);
+      if (widget.event.type == 'set goal') await db.refreshGoals();
       deletingBar.dismiss();
       Navigator.pop(context);
       Flushbar(
@@ -208,7 +212,9 @@ class _RestoreButton extends StatelessWidget {
       backgroundColor: Theme.of(context).primaryColor,
     )..show(context);
     try {
-      await Provider.of<WeeklyGoalsDatabase>(context).createEventFromMap(savedEvent.toJson());
+      final db = Provider.of<WeeklyGoalsDatabase>(context);
+      await db.createEventFromMap(savedEvent.toJson());
+      if (savedEvent.type == 'set goal') await db.refreshGoals();
       restoringBar.dismiss();
       Flushbar(
         message: 'Restored',

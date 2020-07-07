@@ -129,7 +129,9 @@ class _AddEventFormState extends EventEditorState<AddEventForm> {
         backgroundColor: Theme.of(context).primaryColor,
       )..show(context);
       try {
-        await Provider.of<WeeklyGoalsDatabase>(context).createEventFromMap(event);
+        final db = Provider.of<WeeklyGoalsDatabase>(context);
+        await db.createEventFromMap(event);
+        if (event['type'] == 'set goal') await db.refreshGoals();
         savingBar.dismiss();
         Navigator.pop(context);
         Flushbar(

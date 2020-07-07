@@ -153,12 +153,12 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
       data['uuid'] = uuid.v1();
     }
     if (data['synced'] != null) {
-      data = data.map((k, v) => MapEntry(k, v));
+      if (!copied) data = data.map((k, v) => MapEntry(k, v));
       copied = true;
       data['synced'] = null;
     }
     if (data['timestamp'] is DateTime) {
-      data = data.map((k, v) => MapEntry(k, v));
+      if (!copied) data = data.map((k, v) => MapEntry(k, v));
       copied = true;
       data['timestamp'] = (data['timestamp'] as DateTime).millisecondsSinceEpoch;
     }
@@ -169,10 +169,19 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
   Future<void> updateEvent(Event event) => update(events).replace(event);
   Future<void> upsertEvent(EventsCompanion event) => into(events).insertOnConflictUpdate(event);
 
+  Future<void> deleteEvent(String uuid) => (delete(events)..where((e) => e.uuid.equals(uuid))).go();
+
   Stream<List<Goal>> watchCurrentGoals() =>
       (select(cachedGoals)..orderBy([(u) => OrderingTerm(expression: u.name, mode: OrderingMode.asc)]))
           .map((cached) => Goal.copy(cached))
           .watch();
-
-  Future<void> deleteEvent(String uuid) => (delete(events)..where((e) => e.uuid.equals(uuid))).go();
+  
+  Future<void> refreshGoals() async {
+    final newGoals = await Goal.goalsAsOf(db: this);
+    await delete(cachedGoals).go();
+    for (final goal in newGoals) {
+      into(cachedGoals).insert(goal);
+    }
+    print('cached goals updated');
+  }
 }
