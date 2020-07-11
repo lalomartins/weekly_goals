@@ -11,7 +11,7 @@ const Map<int, String> youbi = {
 };
 
 DateTime date({DateTime dateTime, bool midnight = false}) {
-  dateTime = dateTime ?? DateTime.now();
+  dateTime = dateTime ?? DateTime.now().subtract(Duration(minutes: config.dayOffsetMinutes));
   final zh = DateTime(dateTime.year, dateTime.month, dateTime.day);
   return midnight ? zh : zh.add(Duration(minutes: config.dayOffsetMinutes));
 }
