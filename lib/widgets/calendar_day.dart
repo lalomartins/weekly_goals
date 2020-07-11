@@ -8,12 +8,19 @@ import '../db.dart';
 final timeFormat = DateFormat.Hms();
 
 class CalendarDay extends StatelessWidget {
+  /// The date to show.
   final DateTime day;
+
+  /// If false show only the contents, no date header.
   final bool showHeader;
+
+  /// If true highlight the date, for example if it's today.
+  final bool highlight;
   const CalendarDay({
     Key key,
     this.day,
     this.showHeader = true,
+    this.highlight = false,
   }) : super(key: key);
 
   @override
@@ -34,21 +41,15 @@ class CalendarDay extends StatelessWidget {
                             child: Row(children: <Widget>[
                               Text(event.name, style: TextStyle(fontSize: 15)),
                               Spacer(),
-                              Text(
-                                  timeFormat.format(event.timestamp) +
-                                      (event.realTime ? '' : ' (recorded)'),
-                                  style: TextStyle(
-                                      fontSize: 8,
-                                      fontStyle: FontStyle.italic)),
+                              Text(timeFormat.format(event.timestamp) + (event.realTime ? '' : ' (recorded)'),
+                                  style: TextStyle(fontSize: 8, fontStyle: FontStyle.italic)),
                             ]),
                           )
                         ] +
-                        ((event.description != null &&
-                                event.description.isNotEmpty)
+                        ((event.description != null && event.description.isNotEmpty)
                             ? [
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0, vertical: 4.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                                   child: Row(
                                     children: <Widget>[
                                       Flexible(
@@ -72,7 +73,9 @@ class CalendarDay extends StatelessWidget {
               .toList(),
         );
 
-        if (showHeader)
+        if (showHeader) {
+          TextStyle headerStyle = Theme.of(context).primaryTextTheme.headline6;
+          if (highlight) headerStyle = headerStyle.apply(fontWeightDelta: 200);
           return Column(children: <Widget>[
             Container(
               height: 48,
@@ -82,15 +85,15 @@ class CalendarDay extends StatelessWidget {
               ),
               // Eventually we want to use local formats, but for now since I like it in Japanese,
               // until I add a locale override feature or something, I'll hardcode it
-              child: Text('${youbi[day.weekday]} ${day.day}',
-                  style: Theme.of(context).primaryTextTheme.title),
+              child: Text('${youbi[day.weekday]} ${day.day}', style: headerStyle),
             ),
             Expanded(
               child: listView,
             ),
           ]);
-        else
+        } else {
           return listView;
+        }
       },
     );
   }

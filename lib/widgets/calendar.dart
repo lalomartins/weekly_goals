@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../date_util.dart';
 import 'calendar_day.dart';
 import 'goals_for_the_week.dart';
 import 'mini_week_report.dart';
@@ -15,6 +16,12 @@ class Calendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final today = date();
+    Widget day(int weekday) {
+      final dt = start.add(Duration(days: weekday));
+      return CalendarDay(day: dt, highlight: weeksAgo == 0 && dt.day == today.day);
+    }
+
     return Column(
       children: <Widget>[
         Flexible(
@@ -29,19 +36,19 @@ class Calendar extends StatelessWidget {
               Container(
                   decoration: BoxDecoration(
                       border: BorderDirectional(start: BorderSide()))),
-              Flexible(flex: 1, child: CalendarDay(day: start)),
+              Flexible(flex: 1, child: day(0)),
               Container(
                   decoration: BoxDecoration(
                       border: BorderDirectional(start: BorderSide()))),
               Flexible(
                   flex: 1,
-                  child: CalendarDay(day: start.add(Duration(days: 1)))),
+                  child: day(1)),
               Container(
                   decoration: BoxDecoration(
                       border: BorderDirectional(start: BorderSide()))),
               Flexible(
                   flex: 1,
-                  child: CalendarDay(day: start.add(Duration(days: 2)))),
+                  child: day(2)),
             ],
           ),
         ),
@@ -54,25 +61,25 @@ class Calendar extends StatelessWidget {
             children: <Widget>[
               Flexible(
                   flex: 1,
-                  child: CalendarDay(day: start.add(Duration(days: 3)))),
+                  child: day(3)),
               Container(
                   decoration: BoxDecoration(
                       border: BorderDirectional(start: BorderSide()))),
               Flexible(
                   flex: 1,
-                  child: CalendarDay(day: start.add(Duration(days: 4)))),
+                  child: day(4)),
               Container(
                   decoration: BoxDecoration(
                       border: BorderDirectional(start: BorderSide()))),
               Flexible(
                   flex: 1,
-                  child: CalendarDay(day: start.add(Duration(days: 5)))),
+                  child: day(5)),
               Container(
                   decoration: BoxDecoration(
                       border: BorderDirectional(start: BorderSide()))),
               Flexible(
                   flex: 1,
-                  child: CalendarDay(day: start.add(Duration(days: 6)))),
+                  child: day(6)),
             ],
           ),
         ),
