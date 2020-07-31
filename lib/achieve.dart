@@ -1,5 +1,6 @@
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:yaml/yaml.dart';
@@ -34,6 +35,7 @@ class AchieveForm extends StatefulWidget {
 }
 
 class AchieveFormState extends State<AchieveForm> {
+  static final dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
   final _formKey = GlobalKey<FormState>();
   final _descriptionKey = GlobalKey();
   final TextEditingController descriptionController = TextEditingController();
@@ -195,7 +197,7 @@ class AchieveFormState extends State<AchieveForm> {
       ),
       Row(
         children: <Widget>[
-          Text('Time: ${(event['timestamp'] as DateTime).toString()}'),
+          Text('Time: ${dateFormat.format(event['timestamp'])}'),
           const Spacer(),
           IconButton(
             icon: const Icon(Icons.calendar_today),
