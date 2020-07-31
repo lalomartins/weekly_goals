@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:yaml/yaml.dart';
 
-import 'db.dart';
+import '../db.dart';
 
 class AchieveForm extends StatefulWidget {
   final String eventName;

@@ -2,7 +2,6 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:yaml/yaml.dart';
 
 import 'db.dart';
 import 'widgets/event_editor_state.dart';

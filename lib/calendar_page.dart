@@ -2,7 +2,7 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'achieve.dart';
+import 'widgets/achieve.dart';
 import 'date_util.dart';
 import 'db.dart';
 import 'event_list.dart';
