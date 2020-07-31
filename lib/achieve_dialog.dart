@@ -6,12 +6,26 @@ import 'package:yaml/yaml.dart';
 
 import 'db.dart';
 
-class AchieveDialog extends StatefulWidget {
+class AchieveDialog extends StatelessWidget {
   final String eventName;
+  final _formKey = GlobalKey<_AchieveFormState>();
   AchieveDialog({Key key, this.eventName}) : super(key: key);
 
   @override
-  _AchieveDialogState createState() => _AchieveDialogState(eventName);
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Achieve Task'),
+      content: SingleChildScrollView(
+        child: AchieveForm(key: _formKey, eventName: eventName),
+      ),
+      actions: <Widget>[
+        FlatButton(
+          child: Text('Record'),
+          onPressed: () => _formKey.currentState.save(context),
+        ),
+      ],
+    );
+  }
 
   static void popup(BuildContext context, [String eventName]) {
     showDialog(
@@ -21,14 +35,22 @@ class AchieveDialog extends StatefulWidget {
   }
 }
 
-class _AchieveDialogState extends State<AchieveDialog> {
+class AchieveForm extends StatefulWidget {
+  final String eventName;
+  AchieveForm({Key key, this.eventName}) : super(key: key);
+
+  @override
+  _AchieveFormState createState() => _AchieveFormState(eventName);
+}
+
+class _AchieveFormState extends State<AchieveForm> {
   final _formKey = GlobalKey<FormState>();
   final _descriptionKey = GlobalKey();
   final TextEditingController descriptionController = TextEditingController();
   bool descriptionWasEdited = false;
   Map<String, dynamic> event;
 
-  _AchieveDialogState(String name)
+  _AchieveFormState(String name)
       : event = {
           'type': 'weekly goals',
           'name': name ?? '',
@@ -63,6 +85,7 @@ class _AchieveDialogState extends State<AchieveDialog> {
         stream: _dbProvider.watchCurrentGoals(),
         builder: (context, goalsSnapshot) {
           final currentGoals = goalsSnapshot.data ?? [];
+          if (currentGoals.isEmpty) return Text('Loading…');
           final sortedGoals = Goal.sortByCategory(currentGoals);
           List<DropdownMenuItem<String>> items = [];
           List<Widget> selected = [];
@@ -93,7 +116,8 @@ class _AchieveDialogState extends State<AchieveDialog> {
           }
 
           return DropdownButtonFormField<String>(
-            value: event['name'],
+            value: event['name'].isEmpty ? null : event['name'],
+            hint: Text('Select a goal'),
             validator: (value) => value.isEmpty ? 'Select a goal' : null,
             items: items,
             selectedItemBuilder: (context) => selected,
@@ -150,126 +174,115 @@ class _AchieveDialogState extends State<AchieveDialog> {
   @override
   Widget build(BuildContext context) {
     print('build; description is ${event["description"]}');
-    return AlertDialog(
-      title: Text('Achieve Task'),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: ListBody(
+    return Form(
+      key: _formKey,
+      child: ListBody(
+        children: <Widget>[
+          goalPicker(context),
+          Row(
+            key: _descriptionKey,
             children: <Widget>[
-              goalPicker(context),
-              Row(
-                key: _descriptionKey,
-                children: <Widget>[
-                  Expanded(
-                    child: TextFormField(
-                      controller: descriptionController,
-                      decoration: InputDecoration(labelText: 'Description'),
-                      onSaved: (value) {
-                        setState(() {
-                          event['description'] = value;
-                        });
-                      },
-                      maxLines: 5,
-                    ),
-                  ),
-                  Column(
-                    children: <Widget>[
-                      IconButton(
-                        icon: Icon(Icons.clear),
-                        onPressed: () => descriptionController.text = '',
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.search),
-                        onPressed: searchDescriptionPopup,
-                      ),
-                    ],
-                  ),
-                ],
+              Expanded(
+                child: TextFormField(
+                  controller: descriptionController,
+                  decoration: InputDecoration(labelText: 'Description'),
+                  onSaved: (value) {
+                    setState(() {
+                      event['description'] = value;
+                    });
+                  },
+                  maxLines: 5,
+                ),
               ),
-              Row(
+              Column(
                 children: <Widget>[
-                  Text('Time: ${(event['timestamp'] as DateTime).toString()}'),
-                  const Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.calendar_today),
-                    onPressed: () async {
-                      final selectedDate = await showDatePicker(
-                        context: context,
-                        initialDate: event['timestamp'] as DateTime,
-                        firstDate: DateTime(2010),
-                        lastDate: DateTime(3000),
-                      );
-                      if (selectedDate == null) return;
-
-                      final selectedTime = await showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay.fromDateTime(event['timestamp'] as DateTime),
-                      );
-                      if (selectedTime == null) return;
-
-                      setState(() {
-                        final dt = DateTime(
-                          selectedDate.year,
-                          selectedDate.month,
-                          selectedDate.day,
-                          selectedTime.hour,
-                          selectedTime.minute,
-                        );
-                        event['timestamp'] = dt;
-                        event['timezone'] = tz.local.name;
-                        event['timezoneOffset'] = tz.local.timeZone(dt.millisecondsSinceEpoch).offset ~/ 1000;
-                      });
-                    },
+                    icon: Icon(Icons.clear),
+                    onPressed: () => descriptionController.text = '',
                   ),
-                ],
-              ),
-              ExpansionTile(
-                title: Text('Advanced'),
-                backgroundColor: Colors.grey.withOpacity(.25),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: TextFormField(
-                      decoration: InputDecoration(labelText: 'Additional'),
-                      initialValue: event['additional'] ?? '',
-                      onSaved: (value) {
-                        setState(() {
-                          event['additional'] = value;
-                        });
-                      },
-                      validator: (String value) {
-                        if (value.isEmpty) return null;
-                        try {
-                          var v = loadYaml(value);
-                          if (v is Map)
-                            return null;
-                          else
-                            return 'If additional data is provided, it must be a mapping';
-                        } catch (e) {
-                          return 'Invalid YAML';
-                        }
-                      },
-                      maxLines: 5,
-                    ),
-                  ),
-                  CheckboxListTile(
-                    title: Text('Real time'),
-                    value: event['real_time'] ?? false,
-                    onChanged: (newValue) => setState(() => event['real_time'] = newValue),
+                  IconButton(
+                    icon: Icon(Icons.search),
+                    onPressed: searchDescriptionPopup,
                   ),
                 ],
               ),
             ],
           ),
-        ),
+          Row(
+            children: <Widget>[
+              Text('Time: ${(event['timestamp'] as DateTime).toString()}'),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.calendar_today),
+                onPressed: () async {
+                  final selectedDate = await showDatePicker(
+                    context: context,
+                    initialDate: event['timestamp'] as DateTime,
+                    firstDate: DateTime(2010),
+                    lastDate: DateTime(3000),
+                  );
+                  if (selectedDate == null) return;
+
+                  final selectedTime = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.fromDateTime(event['timestamp'] as DateTime),
+                  );
+                  if (selectedTime == null) return;
+
+                  setState(() {
+                    final dt = DateTime(
+                      selectedDate.year,
+                      selectedDate.month,
+                      selectedDate.day,
+                      selectedTime.hour,
+                      selectedTime.minute,
+                    );
+                    event['timestamp'] = dt;
+                    event['timezone'] = tz.local.name;
+                    event['timezoneOffset'] = tz.local.timeZone(dt.millisecondsSinceEpoch).offset ~/ 1000;
+                  });
+                },
+              ),
+            ],
+          ),
+          ExpansionTile(
+            title: Text('Advanced'),
+            backgroundColor: Colors.grey.withOpacity(.25),
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: TextFormField(
+                  decoration: InputDecoration(labelText: 'Additional'),
+                  initialValue: event['additional'] ?? '',
+                  onSaved: (value) {
+                    setState(() {
+                      event['additional'] = value;
+                    });
+                  },
+                  validator: (String value) {
+                    if (value.isEmpty) return null;
+                    try {
+                      var v = loadYaml(value);
+                      if (v is Map)
+                        return null;
+                      else
+                        return 'If additional data is provided, it must be a mapping';
+                    } catch (e) {
+                      return 'Invalid YAML';
+                    }
+                  },
+                  maxLines: 5,
+                ),
+              ),
+              CheckboxListTile(
+                title: Text('Real time'),
+                value: event['real_time'] ?? false,
+                onChanged: (newValue) => setState(() => event['real_time'] = newValue),
+              ),
+            ],
+          ),
+        ],
       ),
-      actions: <Widget>[
-        FlatButton(
-          child: Text('Record'),
-          onPressed: () => save(context),
-        ),
-      ],
     );
   }
 
