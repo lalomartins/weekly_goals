@@ -2,7 +2,7 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'achieve_dialog.dart';
+import 'achieve.dart';
 import 'date_util.dart';
 import 'db.dart';
 import 'event_list.dart';
@@ -109,7 +109,7 @@ class _CalendarPageState extends State<CalendarPage> {
         actions: weekOffset == 0
             ? <Widget>[
                 IconButton(icon: Icon(Icons.arrow_left), onPressed: previousWeek),
-                IconButton(icon: Icon(Icons.check_circle_outline), onPressed: () => AchieveDialog.popup(context)),
+                IconButton(icon: Icon(Icons.check_circle_outline), onPressed: () => AchieveForm.popup(context)),
                 IconButton(icon: Icon(Icons.sync), onPressed: () => sync(context)),
                 IconButton(icon: Icon(Icons.list), onPressed: () => _scaffoldKey.currentState.openEndDrawer()),
               ]

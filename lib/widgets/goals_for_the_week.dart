@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../achieve_dialog.dart';
+import '../achieve.dart';
 import '../date_util.dart';
 import '../db.dart';
 import 'section_title.dart';
@@ -106,7 +106,7 @@ class _GoalsForTheWeekState extends State<GoalsForTheWeek> {
                             }
                             final style = TextStyle(color: color);
                             return InkWell(
-                              onTap: () => AchieveDialog.popup(context, goal.name),
+                              onTap: () => AchieveForm.popup(context, goal.name),
                               child: Padding(
                                 padding:
                                     ListTileTheme.of(context).contentPadding ??

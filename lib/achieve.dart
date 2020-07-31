@@ -6,41 +6,31 @@ import 'package:yaml/yaml.dart';
 
 import 'db.dart';
 
-class AchieveDialog extends StatelessWidget {
-  final String eventName;
-  final _formKey = GlobalKey<_AchieveFormState>();
-  AchieveDialog({Key key, this.eventName}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text('Achieve Task'),
-      content: SingleChildScrollView(
-        child: AchieveForm(key: _formKey, eventName: eventName),
-      ),
-      actions: <Widget>[
-        FlatButton(
-          child: Text('Record'),
-          onPressed: () => _formKey.currentState.save(context),
-        ),
-      ],
-    );
-  }
-
-  static void popup(BuildContext context, [String eventName]) {
-    showDialog(
-      context: context,
-      builder: (context) => AchieveDialog(eventName: eventName),
-    );
-  }
-}
-
 class AchieveForm extends StatefulWidget {
   final String eventName;
   AchieveForm({Key key, this.eventName}) : super(key: key);
 
   @override
   _AchieveFormState createState() => _AchieveFormState(eventName);
+
+  static void popup(BuildContext context, [String eventName]) {
+    final _formKey = GlobalKey<_AchieveFormState>();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Achieve Task'),
+        content: SingleChildScrollView(
+          child: AchieveForm(key: _formKey, eventName: eventName),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Record'),
+            onPressed: () => _formKey.currentState.save(context),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _AchieveFormState extends State<AchieveForm> {
@@ -173,14 +163,11 @@ class _AchieveFormState extends State<AchieveForm> {
 
   @override
   Widget build(BuildContext context) {
-    print('build; description is ${event["description"]}');
     return Form(
       key: _formKey,
       child: ListBody(
         children: <Widget>[
-          widget.eventName.isEmpty
-          ? goalPicker(context)
-          : Text(widget.eventName),
+          if (widget.eventName == null) goalPicker(context) else Text(widget.eventName),
           Row(
             key: _descriptionKey,
             children: <Widget>[
