@@ -178,7 +178,9 @@ class _AchieveFormState extends State<AchieveForm> {
       key: _formKey,
       child: ListBody(
         children: <Widget>[
-          goalPicker(context),
+          widget.eventName.isEmpty
+          ? goalPicker(context)
+          : Text(widget.eventName),
           Row(
             key: _descriptionKey,
             children: <Widget>[
