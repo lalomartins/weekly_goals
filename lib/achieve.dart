@@ -11,10 +11,10 @@ class AchieveForm extends StatefulWidget {
   AchieveForm({Key key, this.eventName}) : super(key: key);
 
   @override
-  _AchieveFormState createState() => _AchieveFormState(eventName);
+  AchieveFormState createState() => AchieveFormState(eventName);
 
   static void popup(BuildContext context, [String eventName]) {
-    final _formKey = GlobalKey<_AchieveFormState>();
+    final _formKey = GlobalKey<AchieveFormState>();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -33,14 +33,14 @@ class AchieveForm extends StatefulWidget {
   }
 }
 
-class _AchieveFormState extends State<AchieveForm> {
+class AchieveFormState extends State<AchieveForm> {
   final _formKey = GlobalKey<FormState>();
   final _descriptionKey = GlobalKey();
   final TextEditingController descriptionController = TextEditingController();
   bool descriptionWasEdited = false;
   Map<String, dynamic> event;
 
-  _AchieveFormState(String name)
+  AchieveFormState(String name)
       : event = {
           'type': 'weekly goals',
           'name': name ?? '',
@@ -148,14 +148,14 @@ class _AchieveFormState extends State<AchieveForm> {
       final choice = await showMenu<String>(
         context: context,
         position: position,
-        items: descriptions.map(
-          (d) => PopupMenuItem<String>(
-            value: d,
-            child: d.isNotEmpty
-              ? Text(d)
-              : Text('(empty)', style: TextStyle(fontStyle: FontStyle.italic)),
-          ),
-        ).toList(),
+        items: descriptions
+            .map(
+              (d) => PopupMenuItem<String>(
+                value: d,
+                child: d.isNotEmpty ? Text(d) : Text('(empty)', style: TextStyle(fontStyle: FontStyle.italic)),
+              ),
+            )
+            .toList(),
       );
       if (choice != null) descriptionController.text = choice;
     }
@@ -163,114 +163,119 @@ class _AchieveFormState extends State<AchieveForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: ListBody(
+    final List<Widget> widgets = [
+      Row(
+        key: _descriptionKey,
         children: <Widget>[
-          if (widget.eventName == null) goalPicker(context) else Text(widget.eventName),
-          Row(
-            key: _descriptionKey,
-            children: <Widget>[
-              Expanded(
-                child: TextFormField(
-                  controller: descriptionController,
-                  decoration: InputDecoration(labelText: 'Description'),
-                  onSaved: (value) {
-                    setState(() {
-                      event['description'] = value;
-                    });
-                  },
-                  maxLines: 5,
-                ),
-              ),
-              Column(
-                children: <Widget>[
-                  IconButton(
-                    icon: Icon(Icons.clear),
-                    onPressed: () => descriptionController.text = '',
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.search),
-                    onPressed: searchDescriptionPopup,
-                  ),
-                ],
-              ),
-            ],
+          Expanded(
+            child: TextFormField(
+              controller: descriptionController,
+              decoration: InputDecoration(labelText: 'Description'),
+              onSaved: (value) {
+                setState(() {
+                  event['description'] = value;
+                });
+              },
+              maxLines: 5,
+            ),
           ),
-          Row(
+          Column(
             children: <Widget>[
-              Text('Time: ${(event['timestamp'] as DateTime).toString()}'),
-              const Spacer(),
               IconButton(
-                icon: const Icon(Icons.calendar_today),
-                onPressed: () async {
-                  final selectedDate = await showDatePicker(
-                    context: context,
-                    initialDate: event['timestamp'] as DateTime,
-                    firstDate: DateTime(2010),
-                    lastDate: DateTime(3000),
-                  );
-                  if (selectedDate == null) return;
-
-                  final selectedTime = await showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay.fromDateTime(event['timestamp'] as DateTime),
-                  );
-                  if (selectedTime == null) return;
-
-                  setState(() {
-                    final dt = DateTime(
-                      selectedDate.year,
-                      selectedDate.month,
-                      selectedDate.day,
-                      selectedTime.hour,
-                      selectedTime.minute,
-                    );
-                    event['timestamp'] = dt;
-                    event['timezone'] = tz.local.name;
-                    event['timezoneOffset'] = tz.local.timeZone(dt.millisecondsSinceEpoch).offset ~/ 1000;
-                  });
-                },
+                icon: Icon(Icons.clear),
+                onPressed: () => descriptionController.text = '',
               ),
-            ],
-          ),
-          ExpansionTile(
-            title: Text('Advanced'),
-            backgroundColor: Colors.grey.withOpacity(.25),
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: TextFormField(
-                  decoration: InputDecoration(labelText: 'Additional'),
-                  initialValue: event['additional'] ?? '',
-                  onSaved: (value) {
-                    setState(() {
-                      event['additional'] = value;
-                    });
-                  },
-                  validator: (String value) {
-                    if (value.isEmpty) return null;
-                    try {
-                      var v = loadYaml(value);
-                      if (v is Map)
-                        return null;
-                      else
-                        return 'If additional data is provided, it must be a mapping';
-                    } catch (e) {
-                      return 'Invalid YAML';
-                    }
-                  },
-                  maxLines: 5,
-                ),
-              ),
-              CheckboxListTile(
-                title: Text('Real time'),
-                value: event['real_time'] ?? false,
-                onChanged: (newValue) => setState(() => event['real_time'] = newValue),
+              IconButton(
+                icon: Icon(Icons.search),
+                onPressed: searchDescriptionPopup,
               ),
             ],
           ),
         ],
+      ),
+      Row(
+        children: <Widget>[
+          Text('Time: ${(event['timestamp'] as DateTime).toString()}'),
+          const Spacer(),
+          IconButton(
+            icon: const Icon(Icons.calendar_today),
+            onPressed: () async {
+              final selectedDate = await showDatePicker(
+                context: context,
+                initialDate: event['timestamp'] as DateTime,
+                firstDate: DateTime(2010),
+                lastDate: DateTime(3000),
+              );
+              if (selectedDate == null) return;
+
+              final selectedTime = await showTimePicker(
+                context: context,
+                initialTime: TimeOfDay.fromDateTime(event['timestamp'] as DateTime),
+              );
+              if (selectedTime == null) return;
+
+              setState(() {
+                final dt = DateTime(
+                  selectedDate.year,
+                  selectedDate.month,
+                  selectedDate.day,
+                  selectedTime.hour,
+                  selectedTime.minute,
+                );
+                event['timestamp'] = dt;
+                event['timezone'] = tz.local.name;
+                event['timezoneOffset'] = tz.local.timeZone(dt.millisecondsSinceEpoch).offset ~/ 1000;
+              });
+            },
+          ),
+        ],
+      ),
+      ExpansionTile(
+        title: Text('Advanced'),
+        backgroundColor: Colors.grey.withOpacity(.25),
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: TextFormField(
+              decoration: InputDecoration(labelText: 'Additional'),
+              initialValue: event['additional'] ?? '',
+              onSaved: (value) {
+                setState(() {
+                  event['additional'] = value;
+                });
+              },
+              validator: (String value) {
+                if (value.isEmpty) return null;
+                try {
+                  var v = loadYaml(value);
+                  if (v is Map)
+                    return null;
+                  else
+                    return 'If additional data is provided, it must be a mapping';
+                } catch (e) {
+                  return 'Invalid YAML';
+                }
+              },
+              maxLines: 5,
+            ),
+          ),
+          CheckboxListTile(
+            title: Text('Real time'),
+            value: event['real_time'] ?? false,
+            onChanged: (newValue) => setState(() => event['real_time'] = newValue),
+          ),
+        ],
+      ),
+    ];
+
+    if (widget.eventName == null) {
+      widgets.insert(0, goalPicker(context));
+    }
+
+    return Form(
+      key: _formKey,
+      child: ListBody(
+        children: widgets,
       ),
     );
   }
