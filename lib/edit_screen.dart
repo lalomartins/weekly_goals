@@ -75,6 +75,15 @@ class _EditEventFormState extends EventEditorState<EditEventForm> {
                     final selectedTime = await showTimePicker(
                       context: context,
                       initialTime: TimeOfDay.fromDateTime(event['timestamp'] as DateTime),
+                      // XXX temporary work-around for flutter/material's time picker dial
+                      // being UX-broken on 24h mode
+                      builder: (BuildContext context, Widget child) {
+                        return MediaQuery(
+                          data: MediaQuery.of(context)
+                              .copyWith(alwaysUse24HourFormat: false),
+                          child: child,
+                        );
+                      },
                     );
                     if (selectedTime == null) return;
 
