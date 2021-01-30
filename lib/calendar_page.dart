@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,17 +24,28 @@ class CalendarPage extends StatefulWidget {
 class _CalendarPageState extends State<CalendarPage> {
   int weekOffset = 0;
   PageController pageController;
+  DateTime thisWeek;
+  Timer _updaterTimer;
   static final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   @override
   void initState() {
     pageController = PageController();
     super.initState();
+    thisWeek = startOfWeek();
+    _updaterTimer = new Timer.periodic(Duration(minutes: 1), (Timer t) {
+      final newWeek = startOfWeek();
+      if (newWeek.isAfter(thisWeek))
+        setState(() {
+          thisWeek = newWeek;
+        });
+    });
   }
 
   @override
   void dispose() {
     pageController.dispose();
+    _updaterTimer.cancel();
     super.dispose();
   }
 
@@ -58,9 +71,9 @@ class _CalendarPageState extends State<CalendarPage> {
     final db = Provider.of<WeeklyGoalsDatabase>(context);
     final client = Provider.of<ServerClient>(context);
     final syncingBar = Flushbar(
-        message: 'Sync in progress',
-        backgroundColor: Theme.of(context).primaryColor,
-      )..show(context);
+      message: 'Sync in progress',
+      backgroundColor: Theme.of(context).primaryColor,
+    )..show(context);
     try {
       await client.sync(db);
       syncingBar.dismiss();
@@ -90,7 +103,6 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
-    final thisWeek = startOfWeek();
     final sow = thisWeek.add(Duration(days: weekOffset * 7));
     final eow = sow.add(Duration(days: 6));
     String weekFormatted;

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +27,8 @@ class _CompactModePageState extends State<CompactModePage> {
   int dayOffset = 0;
   PageController pageController;
   PageController weekPageController;
+  DateTime today;
+  Timer _updaterTimer;
   static final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   @override
@@ -32,12 +36,21 @@ class _CompactModePageState extends State<CompactModePage> {
     pageController = PageController();
     weekPageController = PageController();
     super.initState();
+    today = date();
+    _updaterTimer = new Timer.periodic(Duration(minutes: 1), (Timer t) {
+      final newDay = date();
+      if (newDay.isAfter(today))
+        setState(() {
+          today = newDay;
+        });
+    });
   }
 
   @override
   void dispose() { 
     pageController.dispose();
     weekPageController.dispose();
+    _updaterTimer.cancel();
     super.dispose();
   }
 
@@ -97,7 +110,6 @@ class _CompactModePageState extends State<CompactModePage> {
 
   @override
   Widget build(BuildContext context) {
-    final today = date();
     final weekday = weekOffset(today);
     final day = today.add(Duration(days: dayOffset));
     final sow = day.subtract(Duration(days: weekOffset(day)));
