@@ -44,7 +44,7 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
         },
         onUpgrade: (Migrator m, int from, int to) async {
           if (from == 1) {
-            await m.issueCustomQuery('alter table events rename to events_old');
+            await customStatement('alter table events rename to events_old');
             await m.createAll();
           }
         },
@@ -136,11 +136,11 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
     return query.watch();
   }
 
-  Future<Event> findLatestEvent(String type, String name) => (select(events)
+  Future<List<Event>> findLatestEvents(String type, String name, [int count = 3]) => (select(events)
         ..where((e) => e.type.equals(type) & e.name.equals(name))
         ..orderBy([(u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.desc)])
-        ..limit(1))
-      .getSingle();
+        ..limit(count))
+      .get();
 
   Future<List<String>> findEventDescriptions(String type, String name) =>
       uniqueDescriptions(type, name).map((row) => row.description).get();
@@ -175,7 +175,7 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
       (select(cachedGoals)..orderBy([(u) => OrderingTerm(expression: u.name, mode: OrderingMode.asc)]))
           .map((cached) => Goal.copy(cached))
           .watch();
-  
+
   Future<void> refreshGoals() async {
     final newGoals = await Goal.goalsAsOf(db: this, clearCache: true);
     await delete(cachedGoals).go();

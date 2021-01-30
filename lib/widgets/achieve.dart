@@ -67,8 +67,18 @@ class AchieveFormState extends State<AchieveForm> {
   void autoDescription() async {
     if (descriptionWasEdited || event['name'].isEmpty) return;
     final _dbProvider = Provider.of<WeeklyGoalsDatabase>(context);
-    final latest = await _dbProvider.findLatestEvent('weekly goals', event['name']);
-    descriptionController.text = latest?.description ?? '';
+    final latest = (await _dbProvider.findLatestEvents('weekly goals', event['name'], 3)).map((e) => e.description).toList();
+    if (latest.isEmpty || (latest.length == 1 && latest.first.isEmpty))
+      descriptionController.text = '';
+    else if (latest.length == 1)
+      descriptionController.text = latest.first;
+    else if ((!latest[0].isEmpty) && latest[0] == latest[1])
+      descriptionController.text = latest.first;
+    else if ((!latest[1].isEmpty) && latest[1] == latest[2])
+      descriptionController.text = latest[1];
+    else if ((!latest[0].isEmpty) && latest[0] == latest[2])
+      descriptionController.text = latest.first;
+    else descriptionController.text = '';
   }
 
   Widget goalPicker(BuildContext context) {
