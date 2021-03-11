@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:grpc/grpc.dart';
 import 'package:moor/moor.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:uuid/uuid.dart';
 
 import 'config.dart';
 import 'db.dart';
@@ -52,7 +53,7 @@ class ServerClient {
         } else {
           final data = res.result.event;
           final event = EventsCompanion.insert(
-            uuid: uuid.unparse(data.uuid),
+            uuid: Uuid.unparse(data.uuid),
             type: data.type,
             name: data.name,
             description: Value(data.description),
@@ -79,7 +80,7 @@ class ServerClient {
       map[e.uuid] = e;
       return PushEventsRequest()
         ..event = (pbTypes.Event()
-          ..uuid = uuid.parse(e.uuid)
+          ..uuid = Uuid.parse(e.uuid)
           ..account = _dummyAccount
           ..application = _applicationId
           ..type = e.type
@@ -104,7 +105,7 @@ class ServerClient {
           print(
               'Got error ${res.error.code} ${res.error.message} syncing ${toSync[i].uuid}');
         else {
-          final evUuid = uuid.unparse(res.event.uuid);
+          final evUuid = Uuid.unparse(res.event.uuid);
           final event =
               map[evUuid].copyWith(synced: res.event.synced.toDateTime());
           // print(

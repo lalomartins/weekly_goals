@@ -2,8 +2,8 @@
 //  Generated code. Do not modify.
 //  source: service.proto
 //
-// @dart = 2.3
-// ignore_for_file: camel_case_types,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type
+// @dart = 2.12
+// ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields
 
 import 'dart:async' as $async;
 
@@ -32,32 +32,44 @@ class EventServerClient extends $grpc.Client {
           ($0.WatchEventsRequest value) => value.writeToBuffer(),
           ($core.List<$core.int> value) =>
               $0.WatchEventsResponse.fromBuffer(value));
+  static final _$syncEvents =
+      $grpc.ClientMethod<$0.SyncEventsRequest, $0.SyncEventsResponse>(
+          '/eventserver.EventServer/SyncEvents',
+          ($0.SyncEventsRequest value) => value.writeToBuffer(),
+          ($core.List<$core.int> value) =>
+              $0.SyncEventsResponse.fromBuffer(value));
 
-  EventServerClient($grpc.ClientChannel channel, {$grpc.CallOptions options})
-      : super(channel, options: options);
+  EventServerClient($grpc.ClientChannel channel,
+      {$grpc.CallOptions? options,
+      $core.Iterable<$grpc.ClientInterceptor>? interceptors})
+      : super(channel, options: options, interceptors: interceptors);
 
   $grpc.ResponseStream<$0.PushEventsResponse> pushEvents(
       $async.Stream<$0.PushEventsRequest> request,
-      {$grpc.CallOptions options}) {
-    final call = $createCall(_$pushEvents, request, options: options);
-    return $grpc.ResponseStream(call);
+      {$grpc.CallOptions? options}) {
+    return $createStreamingCall(_$pushEvents, request, options: options);
   }
 
   $grpc.ResponseStream<$0.GetEventsResponse> getEvents(
       $0.GetEventsRequest request,
-      {$grpc.CallOptions options}) {
-    final call = $createCall(_$getEvents, $async.Stream.fromIterable([request]),
+      {$grpc.CallOptions? options}) {
+    return $createStreamingCall(
+        _$getEvents, $async.Stream.fromIterable([request]),
         options: options);
-    return $grpc.ResponseStream(call);
   }
 
   $grpc.ResponseStream<$0.WatchEventsResponse> watchEvents(
       $0.WatchEventsRequest request,
-      {$grpc.CallOptions options}) {
-    final call = $createCall(
+      {$grpc.CallOptions? options}) {
+    return $createStreamingCall(
         _$watchEvents, $async.Stream.fromIterable([request]),
         options: options);
-    return $grpc.ResponseStream(call);
+  }
+
+  $grpc.ResponseStream<$0.SyncEventsResponse> syncEvents(
+      $async.Stream<$0.SyncEventsRequest> request,
+      {$grpc.CallOptions? options}) {
+    return $createStreamingCall(_$syncEvents, request, options: options);
   }
 }
 
@@ -88,6 +100,13 @@ abstract class EventServerServiceBase extends $grpc.Service {
             ($core.List<$core.int> value) =>
                 $0.WatchEventsRequest.fromBuffer(value),
             ($0.WatchEventsResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.SyncEventsRequest, $0.SyncEventsResponse>(
+        'SyncEvents',
+        syncEvents,
+        true,
+        true,
+        ($core.List<$core.int> value) => $0.SyncEventsRequest.fromBuffer(value),
+        ($0.SyncEventsResponse value) => value.writeToBuffer()));
   }
 
   $async.Stream<$0.GetEventsResponse> getEvents_Pre($grpc.ServiceCall call,
@@ -106,4 +125,6 @@ abstract class EventServerServiceBase extends $grpc.Service {
       $grpc.ServiceCall call, $0.GetEventsRequest request);
   $async.Stream<$0.WatchEventsResponse> watchEvents(
       $grpc.ServiceCall call, $0.WatchEventsRequest request);
+  $async.Stream<$0.SyncEventsResponse> syncEvents(
+      $grpc.ServiceCall call, $async.Stream<$0.SyncEventsRequest> request);
 }

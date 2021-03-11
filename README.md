@@ -1,16 +1,12 @@
 # weekly_goals
 
-A new Flutter project.
+Really need to write something here eventually.
 
-## Getting Started
+## How to generate the proto files
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. Check out event-server (let's say side by side with this).
+2. Install protoc. Note where you put the include files, let's call that $PROTO_INC. On Windows it
+   needs to be unpacked manually somewhere.
+3. Install protoc_plugin for dart: `pub global activate protoc_plugin`. Pay attention to the
+   output; you may need to add something to your PATH.
+4. Run protoc: `protoc --dart_out=grpc:lib/generated -I../event-server/proto -I$PROTOC_INC ../event-server/proto/service.proto`
