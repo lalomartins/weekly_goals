@@ -65,9 +65,9 @@ class _CompactModePageState extends State<CompactModePage> {
   void handleDayChanged(offset) {
     setState(() => dayOffset = -offset);
     final weekday = weekOffset(date());
-    final weeks = (weekday - dayOffset) ~/ 7;
-    if (weekPageController.page != weeks)
-      weekPageController.animateToPage(weeks, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+    final weeks = ((weekday + dayOffset) / 7).floor();
+    if (weekPageController.page != -weeks)
+      weekPageController.animateToPage(-weeks, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
   }
 
   @override
