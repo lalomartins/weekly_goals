@@ -17,15 +17,16 @@ import 'theme.dart';
 
 void main() {
   tz.initializeTimeZones();
-  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  config.load().then((_) => runApp(AppRoot()));
 }
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+class AppRoot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider<Config>.value(value: config),
         Provider<WeeklyGoalsDatabase>(
           create: (_) => WeeklyGoalsDatabase(),
         ),
@@ -45,28 +46,36 @@ class MyApp extends StatelessWidget {
         ),
         FutureProvider<PackageInfo>(create: (_) => PackageInfo.fromPlatform()),
       ],
-      child: MaterialApp(
-        title: 'Weekly Goals',
-        theme: wgLightTheme,
-        darkTheme: wgDarkTheme,
-        initialRoute: '/',
-        routes: {
-          '/': (context) => OrientationBuilder(
-            builder: (BuildContext context, Orientation orientation) {
-              return orientation == Orientation.landscape
-              ? CalendarPage()
-              : CompactModePage();
-            },
-          ),
-          'settings': (context) => SettingsScreen(),
-          'add': (context) => AddScreen(),
-          'edit': (context) => EditScreen(),
-        },
-        builder: (context, navi) {
-          config.init(context);
-          return navi;
-        },
-      ),
+      child: WeeklyGoalsApp(),
+    );
+  }
+}
+
+class WeeklyGoalsApp extends StatelessWidget {
+  const WeeklyGoalsApp({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final config = Provider.of<Config>(context);
+    return MaterialApp(
+      title: 'Weekly Goals',
+      theme: wgLightTheme,
+      darkTheme: wgDarkTheme,
+      themeMode: config.themeMode,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => OrientationBuilder(
+              builder: (BuildContext context, Orientation orientation) {
+                config.useLocaleDefaults(context);
+                return orientation == Orientation.landscape ? CalendarPage() : CompactModePage();
+              },
+            ),
+        'settings': (context) => SettingsScreen(),
+        'add': (context) => AddScreen(),
+        'edit': (context) => EditScreen(),
+      },
     );
   }
 }
