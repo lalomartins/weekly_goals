@@ -68,7 +68,7 @@ class Config with ChangeNotifier {
     notifyListeners();
   }
 
-  String _serverAccount;
+  String _serverAccount = '';
   String get serverAccount => _serverAccount;
   set serverAccount(String serverAccount) {
     _serverAccount = serverAccount;
@@ -76,7 +76,7 @@ class Config with ChangeNotifier {
     notifyListeners();
   }
 
-  String _serverToken;
+  String _serverToken = '';
   String get serverToken => _serverToken;
   set serverToken(String serverToken) {
     _serverToken = serverToken;
