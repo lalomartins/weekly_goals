@@ -4,6 +4,7 @@ import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:weekly_goals/event_list.dart';
 
 import 'add_screen.dart';
 import 'compact_mode_page.dart';
@@ -76,6 +77,7 @@ class WeeklyGoalsApp extends StatelessWidget {
         'settings': (context) => SettingsScreen(),
         'add': (context) => AddScreen(),
         'edit': (context) => EditScreen(),
+        'events': (context) => EventListPage(),
       },
     );
   }

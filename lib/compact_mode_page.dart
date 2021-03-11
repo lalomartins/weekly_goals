@@ -1,14 +1,10 @@
 import 'dart:async';
 
-import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:weekly_goals/drawer_menu.dart';
 
 import 'widgets/achieve.dart';
 import 'date_util.dart';
-import 'db.dart';
-import 'event_list.dart';
-import 'server_client.dart';
 import 'widgets/calendar_day.dart';
 import 'widgets/drawer_overlay.dart';
 import 'widgets/goals_for_the_week.dart';
@@ -66,40 +62,6 @@ class _CompactModePageState extends State<CompactModePage> {
     pageController.animateToPage(0, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
   }
 
-  Future<void> sync(BuildContext context) async {
-    final db = Provider.of<WeeklyGoalsDatabase>(context);
-    final client = Provider.of<ServerClient>(context);
-    final syncingBar = Flushbar(
-        message: 'Sync in progress',
-        backgroundColor: Theme.of(context).primaryColor,
-      )..show(context);
-    try {
-      await client.sync(db);
-      syncingBar.dismiss();
-      Flushbar(
-        message: 'Sync completed',
-        backgroundColor: Theme.of(context).primaryColor,
-        icon: Icon(Icons.sync, color: Theme.of(context).colorScheme.onPrimary),
-        duration: Duration(seconds: 30),
-      )..show(context);
-    } catch (e) {
-      syncingBar.dismiss();
-      print('Sync error!');
-      print(e);
-      Flushbar errorBar;
-      errorBar = Flushbar(
-        message: 'Sync error. Try again later, or check the logs.',
-        backgroundColor: Theme.of(context).errorColor,
-        icon: Icon(Icons.error, color: Theme.of(context).colorScheme.onError),
-        mainButton: FlatButton(
-          child: Text('dismiss', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
-          onPressed: () => errorBar.dismiss(),
-        ),
-        duration: Duration(seconds: 60),
-      )..show(context);
-    }
-  }
-
   void handleDayChanged(offset) {
     setState(() => dayOffset = -offset);
     final weekday = weekOffset(date());
@@ -121,12 +83,9 @@ class _CompactModePageState extends State<CompactModePage> {
             ? <Widget>[
                 IconButton(icon: Icon(Icons.arrow_left), onPressed: previousDay),
                 IconButton(icon: Icon(Icons.check_circle_outline), onPressed: () => AchieveForm.popup(context)),
-                IconButton(icon: Icon(Icons.sync), onPressed: () => sync(context)),
-                IconButton(icon: Icon(Icons.list), onPressed: () => _scaffoldKey.currentState.openEndDrawer()),
               ]
             : <Widget>[
                 IconButton(icon: Icon(Icons.arrow_left), onPressed: previousDay),
-                IconButton(icon: Icon(Icons.sync), onPressed: () => sync(context)),
                 IconButton(icon: Icon(Icons.restore), onPressed: resetDay),
                 IconButton(icon: Icon(Icons.arrow_right), onPressed: nextDay),
               ],
@@ -161,7 +120,7 @@ class _CompactModePageState extends State<CompactModePage> {
           )
         ],
       ),
-      endDrawer: DrawerOverlay(drawerContent: EventList(popOnNav: true)),
+      drawer: DrawerOverlay(drawerContent: DrawerMenu()),
     );
   }
 }

@@ -4,6 +4,18 @@ import 'package:provider/provider.dart';
 import 'db.dart';
 import 'widgets/event_card.dart';
 
+class EventListPage extends StatelessWidget {
+  const EventListPage({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Event Log')),
+      body: EventList(primary: true),
+    );
+  }
+}
+
 class EventList extends StatelessWidget {
   final bool primary;
   final bool popOnNav;
