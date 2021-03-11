@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeNotifier with ChangeNotifier {
@@ -22,6 +23,18 @@ class Config with ChangeNotifier {
   set weekStartsOn(int weekStartsOn) {
     _weekStartsOn = weekStartsOn;
     _preferences.setInt('weekStartsOn', weekStartsOn);
+    notifyListeners();
+  }
+
+  bool _fullscreen = false;
+  bool get fullscreen => _fullscreen;
+  set fullscreen(bool fullscreen) {
+    _fullscreen = fullscreen;
+    _preferences.setBool('fullscreen', fullscreen);
+    if (fullscreen)
+      SystemChrome.setEnabledSystemUIOverlays ([SystemUiOverlay.bottom]);
+    else
+      SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     notifyListeners();
   }
 
@@ -66,6 +79,13 @@ class Config with ChangeNotifier {
     if (_preferences.containsKey('weekStartsOn')) _weekStartsOn = _preferences.getInt('weekStartsOn');
     if (_preferences.containsKey('themeMode')) {
       setThemeMode(_preferences.getString('themeMode'));
+    }
+    if (_preferences.containsKey('fullscreen')) {
+      _fullscreen = _preferences.getBool('fullscreen');
+      if (_fullscreen)
+        SystemChrome.setEnabledSystemUIOverlays ([SystemUiOverlay.bottom]);
+      else
+        SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     }
     if (_preferences.containsKey('serverAddress')) _serverAddress = _preferences.getString('serverAddress');
     if (_preferences.containsKey('serverAccount')) _serverAccount = _preferences.getString('serverAccount');

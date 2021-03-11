@@ -1,5 +1,6 @@
 import 'package:card_settings/card_settings.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 
@@ -39,6 +40,11 @@ class SettingsForm extends StatelessWidget {
                 values: ['ThemeMode.system', 'ThemeMode.dark', 'ThemeMode.light'],
                 initialValue: config.themeMode.toString(),
                 onChanged: config.setThemeMode,
+              ),
+              CardSettingsSwitch(
+                label: 'Full Screen',
+                initialValue: config.fullscreen,
+                onChanged: (value) => config.fullscreen = value,
               ),
             ],
           ),
