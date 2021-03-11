@@ -29,7 +29,7 @@ class Config with ChangeNotifier {
     notifyListeners();
   }
 
-  String _serverAddress = 'http://lalomartins.info';
+  String _serverAddress = 'http://example.com/';
   String get serverAddress => _serverAddress;
   set serverAddress(String serverAddress) {
     _serverAddress = serverAddress;

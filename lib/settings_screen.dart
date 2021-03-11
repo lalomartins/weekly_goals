@@ -24,15 +24,19 @@ class SettingsForm extends StatefulWidget {
 class _SettingsFormState extends State<SettingsForm> {
   @override
   Widget build(BuildContext context) {
+    final packageInfo = Provider.of<PackageInfo>(context);
     return Form(
-        child: Consumer<PackageInfo>(
-      builder: (_, packageInfo, __) => CardSettings.sectioned(
+      child: CardSettings.sectioned(
         showMaterialonIOS: true,
         children: [
           CardSettingsSection(
             header: CardSettingsHeader(label: 'General'),
             children: [
-              CardSettingsText(label: 'Version', initialValue: packageInfo.version, enabled: false),
+              CardSettingsText(
+                label: 'Version',
+                initialValue: packageInfo != null ? packageInfo.version : 'unknown',
+                enabled: false,
+              ),
             ],
           ),
           CardSettingsSection(
@@ -53,6 +57,6 @@ class _SettingsFormState extends State<SettingsForm> {
           ),
         ],
       ),
-    ));
+    );
   }
 }

@@ -108,15 +108,15 @@ class _EditEventFormState extends EventEditorState<EditEventForm> {
               child: Row(
                 children: <Widget>[
                   Expanded(
-                    child: RaisedButton(
+                    child: ElevatedButton(
                       onPressed: () => delete(context),
                       child: Text('Delete', style: TextStyle(color: Theme.of(context).colorScheme.onError)),
-                      color: Theme.of(context).colorScheme.error,
+                      style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.error)),
                     ),
                   ),
                   Padding(padding: const EdgeInsets.only(left: 10.0)),
                   Expanded(
-                    child: RaisedButton(
+                    child: ElevatedButton(
                       onPressed: () => save(context),
                       child: Text('Update'),
                     ),
@@ -206,7 +206,7 @@ class _RestoreButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlatButton(
+    return TextButton(
       child: Text(message, style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
       onPressed: () => restore(context),
     );

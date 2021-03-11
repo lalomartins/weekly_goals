@@ -71,7 +71,7 @@ class Goal extends CachedGoal {
 
     final events = await db.getEvents(type: 'set goal', until: when);
     final map = Map<String, Map<String, Goal>>();
-    final goals = List<Goal>();
+    final goals = <Goal>[];
     final effectDate = when ?? startOfWeek(weeksAgo: -1, midnight: true);
     for (final event in events) {
       final YamlMap data = loadYaml(event.additional);

@@ -23,7 +23,7 @@ class GoalInfo extends StatefulWidget {
           child: GoalInfo(key: _formKey, goal: goal),
         ),
         actions: <Widget>[
-          FlatButton(
+          TextButton(
             child: Text('Save'),
             onPressed: () => _formKey.currentState.save(context),
           ),

@@ -43,8 +43,9 @@ class AppRoot extends StatelessWidget {
             }
             return tz.local;
           },
+          initialData: null,
         ),
-        FutureProvider<PackageInfo>(create: (_) => PackageInfo.fromPlatform()),
+        FutureProvider<PackageInfo>(create: (_) => PackageInfo.fromPlatform(), initialData: null),
       ],
       child: WeeklyGoalsApp(),
     );
@@ -68,7 +69,9 @@ class WeeklyGoalsApp extends StatelessWidget {
       routes: {
         '/': (context) => OrientationBuilder(
               builder: (BuildContext context, Orientation orientation) {
-                config.useLocaleDefaults(context);
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  config.useLocaleDefaults(context);
+                });
                 return orientation == Orientation.landscape ? CalendarPage() : CompactModePage();
               },
             ),

@@ -91,7 +91,7 @@ class _CompactModePageState extends State<CompactModePage> {
         message: 'Sync error. Try again later, or check the logs.',
         backgroundColor: Theme.of(context).errorColor,
         icon: Icon(Icons.error, color: Theme.of(context).colorScheme.onError),
-        mainButton: FlatButton(
+        mainButton: TextButton(
           child: Text('dismiss', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
           onPressed: () => errorBar.dismiss(),
         ),
