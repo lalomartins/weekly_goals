@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
+import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -11,6 +12,7 @@ import 'calendar_page.dart';
 import 'db.dart';
 import 'edit_screen.dart';
 import 'server_client.dart';
+import 'settings_screen.dart';
 import 'theme.dart';
 
 void main() {
@@ -41,6 +43,7 @@ class MyApp extends StatelessWidget {
             return tz.local;
           },
         ),
+        FutureProvider<PackageInfo>(create: (_) => PackageInfo.fromPlatform()),
       ],
       child: MaterialApp(
         title: 'Weekly Goals',
@@ -55,6 +58,7 @@ class MyApp extends StatelessWidget {
               : CompactModePage();
             },
           ),
+          'settings': (context) => SettingsScreen(),
           'add': (context) => AddScreen(),
           'edit': (context) => EditScreen(),
         },

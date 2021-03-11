@@ -139,7 +139,7 @@ class AchieveFormState extends State<AchieveForm> {
     if (descriptions.length == 0 || (descriptions.length == 1 && descriptions.first.isEmpty)) {
       showDialog(
         context: context,
-        child: AlertDialog(
+        builder: (_) => AlertDialog(
           title: Text('Nothing found'),
           content: Text('There are no descriptions for this goal in the database.'),
         ),

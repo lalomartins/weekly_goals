@@ -123,6 +123,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 IconButton(icon: Icon(Icons.arrow_left), onPressed: previousWeek),
                 IconButton(icon: Icon(Icons.check_circle_outline), onPressed: () => AchieveForm.popup(context)),
                 IconButton(icon: Icon(Icons.sync), onPressed: () => sync(context)),
+                IconButton(icon: Icon(Icons.settings), onPressed: () => Navigator.pushNamed(context, 'settings')),
                 IconButton(icon: Icon(Icons.list), onPressed: () => _scaffoldKey.currentState.openEndDrawer()),
               ]
             : <Widget>[
