@@ -12,6 +12,7 @@ unreleased
 
 * Settings screen
 * Toolbar cleanup
+* Fix drag navigation of compact mode
 
 ## v.3.3 - 2020 Is Finally Over
 2021-01-30
