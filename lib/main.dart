@@ -27,6 +27,7 @@ class AppRoot extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<Config>.value(value: config),
+        ChangeNotifierProvider<ThemeNotifier>.value(value: config.themeNotifier),
         Provider<WeeklyGoalsDatabase>(
           create: (_) => WeeklyGoalsDatabase(),
         ),
@@ -58,12 +59,12 @@ class WeeklyGoalsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final config = Provider.of<Config>(context);
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
     return MaterialApp(
       title: 'Weekly Goals',
       theme: wgLightTheme,
       darkTheme: wgDarkTheme,
-      themeMode: config.themeMode,
+      themeMode: themeNotifier.value,
       initialRoute: '/',
       routes: {
         '/': (context) => OrientationBuilder(

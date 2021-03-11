@@ -6,22 +6,13 @@ import 'package:provider/provider.dart';
 import 'config.dart';
 
 class SettingsScreen extends StatelessWidget {
-  final _formKey = GlobalKey<_SettingsFormState>();
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text('Settings')), body: SettingsForm(key: _formKey));
+    return Scaffold(appBar: AppBar(title: Text('Settings')), body: SettingsForm());
   }
 }
 
-class SettingsForm extends StatefulWidget {
-  SettingsForm({Key key}) : super(key: key);
-
-  @override
-  _SettingsFormState createState() => _SettingsFormState();
-}
-
-class _SettingsFormState extends State<SettingsForm> {
+class SettingsForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -48,6 +39,38 @@ class _SettingsFormState extends State<SettingsForm> {
                 values: ['ThemeMode.system', 'ThemeMode.dark', 'ThemeMode.light'],
                 initialValue: config.themeMode.toString(),
                 onChanged: config.setThemeMode,
+              ),
+            ],
+          ),
+          CardSettingsSection(
+            header: CardSettingsHeader(label: 'Server'),
+            children: [
+              CardSettingsText(
+                label: 'Address',
+                initialValue: config.serverAddress,
+                maxLength: 255,
+                autocorrect: false,
+                onChanged: (value) {
+                  config.serverAddress = value;
+                },
+              ),
+              CardSettingsText(
+                label: 'Account',
+                initialValue: config.serverAccount,
+                maxLength: 255,
+                autocorrect: false,
+                onChanged: (value) {
+                  config.serverAccount = value;
+                },
+              ),
+              CardSettingsText(
+                label: 'Authentication Token',
+                initialValue: config.serverToken,
+                maxLength: 255,
+                autocorrect: false,
+                onChanged: (value) {
+                  config.serverToken = value;
+                },
               ),
             ],
           ),

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+class ThemeNotifier with ChangeNotifier {
+  ThemeMode value = ThemeMode.system;
+}
+
 class Config with ChangeNotifier {
   SharedPreferences _preferences;
 
@@ -23,13 +27,16 @@ class Config with ChangeNotifier {
 
   ThemeMode _themeMode = ThemeMode.system;
   ThemeMode get themeMode => _themeMode;
+  ThemeNotifier themeNotifier = ThemeNotifier();
   set themeMode(ThemeMode themeMode) {
     _themeMode = themeMode;
     _preferences.setString('themeMode', themeMode.toString());
+    themeNotifier.value = themeMode;
     notifyListeners();
+    themeNotifier.notifyListeners();
   }
 
-  String _serverAddress = 'http://lalomartins.info';
+  String _serverAddress = 'http://example.com';
   String get serverAddress => _serverAddress;
   set serverAddress(String serverAddress) {
     _serverAddress = serverAddress;
@@ -76,9 +83,11 @@ class Config with ChangeNotifier {
       default:
         _themeMode = ThemeMode.system;
     }
+    themeNotifier.value = _themeMode;
     if (save)
       _preferences.setString('themeMode', _themeMode.toString());
       notifyListeners();
+      themeNotifier.notifyListeners();
   }
 
   void useLocaleDefaults(BuildContext context) {

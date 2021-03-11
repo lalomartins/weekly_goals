@@ -10,13 +10,12 @@ import 'generated/google/protobuf/timestamp.pb.dart';
 import 'generated/service.pbgrpc.dart';
 import 'generated/types.pb.dart' as pbTypes;
 
-final _dummyAccount = utf8.encode('dummy');
 const _applicationId = 'lalomartins.info/apps/weekly-goals';
-final _getEventsRequest = GetEventsRequest()
+
+GetEventsRequest _getEventsRequest() => GetEventsRequest()
   ..filter = (pbTypes.EventsFilter()
-    ..account = _dummyAccount
-    ..application = _applicationId
-  );
+    ..account = utf8.encode(config.serverAccount)
+    ..application = _applicationId);
 
 class ServerClient {
   ClientChannel _channel;
@@ -24,18 +23,23 @@ class ServerClient {
   bool syncing = false;
 
   ServerClient() {
-    _openChannel(config.serverAddress);
+    _openChannel();
+    config.addListener(_openChannel);
   }
 
-  void _openChannel(address) {
-    final url = Uri.tryParse(address) ?? Uri(host: address);
+  void _openChannel() {
+    var url = Uri.tryParse(config.serverAddress);
+    if (url == null || url.host.isEmpty) url = Uri(host: config.serverAddress, port: 50051);
     _channel = ClientChannel(
       url.host,
       port: url.hasPort ? url.port : 50051,
       options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
     );
     _client = EventServerClient(_channel,
-        options: CallOptions(timeout: Duration(seconds: 30)));
+        options: CallOptions(
+          timeout: Duration(seconds: 30),
+          metadata: {"AuthToken": config.serverToken},
+        ));
   }
 
   Future<void> sync(WeeklyGoalsDatabase db) async {
@@ -46,9 +50,9 @@ class ServerClient {
     print('syncing from server');
     try {
       List<Future<void>> dbOps = [];
-      await for (final res in _client.getEvents(_getEventsRequest)) {
+      await for (final res in _client.getEvents(_getEventsRequest())) {
         if (res.result.hasError()) {
-          print('SYNC ERROR received: ${res.result.error}');
+          throw res.result.error;
         } else {
           final data = res.result.event;
           final event = EventsCompanion.insert(
@@ -70,6 +74,8 @@ class ServerClient {
       await Future.wait(dbOps);
     } catch (e) {
       print('SYNC ERROR: $e');
+      syncing = false;
+      throw e;
     }
 
     final toSync = await db.unsyncedEvents;
@@ -80,7 +86,7 @@ class ServerClient {
       return PushEventsRequest()
         ..event = (pbTypes.Event()
           ..uuid = uuid.parse(e.uuid)
-          ..account = _dummyAccount
+          ..account = utf8.encode(config.serverAccount)
           ..application = _applicationId
           ..type = e.type
           ..name = e.name
@@ -88,11 +94,7 @@ class ServerClient {
           ..timestamp = Timestamp.fromDateTime(e.timestamp)
           ..timezone = (pbTypes.Timezone()
             ..name = e.timezone
-            ..offset = tz
-                    .getLocation(e.timezone)
-                    .timeZone(e.timestamp.millisecondsSinceEpoch)
-                    .offset ~/
-                1000)
+            ..offset = tz.getLocation(e.timezone).timeZone(e.timestamp.millisecondsSinceEpoch).offset ~/ 1000)
           ..realTime = e.realTime
           ..additionalYaml = e.additional);
     }));
@@ -101,12 +103,10 @@ class ServerClient {
       await for (final response in _client.pushEvents(outgoing)) {
         final res = response.result;
         if (res.hasError())
-          print(
-              'Got error ${res.error.code} ${res.error.message} syncing ${toSync[i].uuid}');
+          print('Got error ${res.error.code} ${res.error.message} syncing ${toSync[i].uuid}');
         else {
           final evUuid = uuid.unparse(res.event.uuid);
-          final event =
-              map[evUuid].copyWith(synced: res.event.synced.toDateTime());
+          final event = map[evUuid].copyWith(synced: res.event.synced.toDateTime());
           // print(
           //     'Got event ${event.uuid} (${res.event.type}/${res.event.name}) synced at ${res.event.synced}');
           await db.updateEvent(event);
