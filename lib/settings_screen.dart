@@ -24,7 +24,27 @@ class SettingsForm extends StatelessWidget {
           CardSettingsSection(
             header: CardSettingsHeader(label: 'General'),
             children: [
-              CardSettingsText(label: 'Version', initialValue: packageInfo.version, enabled: false),
+              CardSettingsTimePicker(
+                label: 'Day start',
+                initialValue: config.dayStartTime,
+                icon: Icon(Icons.bedtime),
+                onChanged: (value) => config.dayStartTime = value,
+              ),
+              CardSettingsSelectionPicker(
+                label: 'Week start',
+                options: [
+                  'Sunday',
+                  'Monday',
+                  'Tuesday',
+                  'Wednesday',
+                  'Thursday',
+                  'Friday',
+                  'Saturday',
+                ],
+                values: ['1', '2', '3', '4', '5', '6', '0'],
+                initialValue: config.weekStartsOn.toString(),
+                onChanged: (value) => config.weekStartsOn = int.parse(value),
+              ),
             ],
           ),
           CardSettingsSection(
@@ -42,7 +62,7 @@ class SettingsForm extends StatelessWidget {
                 onChanged: config.setThemeMode,
               ),
               CardSettingsSwitch(
-                label: 'Full Screen',
+                label: 'Full screen',
                 initialValue: config.fullscreen,
                 onChanged: (value) => config.fullscreen = value,
               ),
@@ -70,7 +90,7 @@ class SettingsForm extends StatelessWidget {
                 },
               ),
               CardSettingsText(
-                label: 'Authentication Token',
+                label: 'Authentication token',
                 initialValue: config.serverToken,
                 maxLength: 255,
                 autocorrect: false,

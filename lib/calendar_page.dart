@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:weekly_goals/drawer_menu.dart';
 
+import 'config.dart';
 import 'widgets/achieve.dart';
 import 'date_util.dart';
 import 'widgets/calendar.dart';
@@ -23,6 +24,7 @@ class _CalendarPageState extends State<CalendarPage> {
   DateTime thisWeek;
   Timer _updaterTimer;
   static final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+  int _dayStart, _weekStart;
 
   @override
   void initState() {
@@ -36,12 +38,26 @@ class _CalendarPageState extends State<CalendarPage> {
           thisWeek = newWeek;
         });
     });
+    _dayStart = config.dayOffsetMinutes;
+    _weekStart = config.weekStartsOn;
+    config.addListener(configListener);
+  }
+
+  void configListener() {
+    if (_dayStart != config.dayOffset || _weekStart != config.weekStartsOn) {
+      _dayStart = config.dayOffsetMinutes;
+      _weekStart = config.weekStartsOn;
+      setState(() {
+        thisWeek = startOfWeek();
+      });
+    }
   }
 
   @override
   void dispose() {
     pageController.dispose();
     _updaterTimer.cancel();
+    config.removeListener(configListener);
     super.dispose();
   }
 

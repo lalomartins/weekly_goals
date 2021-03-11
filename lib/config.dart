@@ -17,6 +17,17 @@ class Config with ChangeNotifier {
     notifyListeners();
   }
   Duration get dayOffset => Duration(minutes: dayOffsetMinutes);
+  TimeOfDay get dayStartTime {
+    const day = 24 * 60;
+    final abs = _dayOffsetMinutes < 0 ? _dayOffsetMinutes + day : _dayOffsetMinutes;
+    return TimeOfDay(hour: (abs / 60).floor(), minute: abs % 60);
+  }
+  set dayStartTime(TimeOfDay time) {
+    if (time.hour < 12)
+      dayOffsetMinutes = time.hour * 60 + time.minute;
+    else
+      dayOffsetMinutes = (time.hour - 24) * 60 + time.minute;
+  }
 
   int _weekStartsOn = DateTime.sunday;
   int get weekStartsOn => _weekStartsOn;
