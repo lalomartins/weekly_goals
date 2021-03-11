@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
@@ -67,18 +68,25 @@ class WeeklyGoalsApp extends StatelessWidget {
       themeMode: config.themeMode,
       initialRoute: '/',
       routes: {
-        '/': (context) => OrientationBuilder(
-              builder: (BuildContext context, Orientation orientation) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  config.useLocaleDefaults(context);
-                });
-                return orientation == Orientation.landscape ? CalendarPage() : CompactModePage();
-              },
-            ),
-        'settings': (context) => SettingsScreen(),
-        'add': (context) => AddScreen(),
-        'edit': (context) => EditScreen(),
+        '/': (context) {
+          return OrientationBuilder(
+            builder: (BuildContext context, Orientation orientation) {
+              return orientation == Orientation.landscape ? CalendarPage() : CompactModePage();
+            },
+          );
+        },
+        'settings': (_) => SettingsScreen(),
+        'add': (_) => AddScreen(),
+        'edit': (_) => EditScreen(),
       },
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en', ''),
+        const Locale('ja', ''),
+      ],
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'config.dart';
 import 'widgets/achieve.dart';
 import 'date_util.dart';
 import 'db.dart';
@@ -39,6 +40,9 @@ class _CalendarPageState extends State<CalendarPage> {
         setState(() {
           thisWeek = newWeek;
         });
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      config.useLocaleDefaults(context);
     });
   }
 
