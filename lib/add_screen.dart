@@ -119,7 +119,7 @@ class _AddEventFormState extends EventEditorState<AddEventForm> {
             yamlField('additional', multiline: true),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 10.0),
-              child: RaisedButton(
+              child: ElevatedButton(
                 onPressed: () => save(context),
                 child: Text('Record'),
               ),

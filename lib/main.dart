@@ -45,8 +45,9 @@ class AppRoot extends StatelessWidget {
             }
             return tz.local;
           },
+          initialData: null,
         ),
-        FutureProvider<PackageInfo>(create: (_) => PackageInfo.fromPlatform()),
+        FutureProvider<PackageInfo>(create: (_) => PackageInfo.fromPlatform(), initialData: null),
       ],
       child: WeeklyGoalsApp(),
     );

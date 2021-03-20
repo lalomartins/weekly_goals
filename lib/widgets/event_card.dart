@@ -57,7 +57,7 @@ class _EventCardState extends State<EventCard> {
           )),
       Container(
         width: 45,
-        child: FlatButton(
+        child: TextButton(
           child: Icon(
             Icons.content_copy,
             size: 32.0,
@@ -78,7 +78,7 @@ class _EventCardState extends State<EventCard> {
           1,
           Container(
             width: 45,
-            child: FlatButton(
+            child: TextButton(
               child: Icon(
                 Icons.edit,
                 size: 32.0,

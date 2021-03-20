@@ -24,7 +24,7 @@ class AchieveForm extends StatefulWidget {
           child: AchieveForm(key: _formKey, eventName: eventName),
         ),
         actions: <Widget>[
-          FlatButton(
+          TextButton(
             child: Text('Record'),
             onPressed: () => _formKey.currentState.save(context),
           ),

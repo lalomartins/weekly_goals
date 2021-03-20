@@ -85,7 +85,7 @@ class WeeklyGoalsDatabase extends _$WeeklyGoalsDatabase {
       (select(events)..orderBy([(u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.desc)])).watch();
 
   Future<List<Event>> get unsyncedEvents => (select(events)
-        ..where((t) => isNull(t.synced))
+        ..where((t) => t.synced.isNull())
         ..orderBy([(u) => OrderingTerm(expression: u.timestamp, mode: OrderingMode.asc)]))
       .get();
 

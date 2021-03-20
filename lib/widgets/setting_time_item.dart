@@ -1,5 +1,7 @@
-import 'package:clean_settings/clean_settings.dart';
 import 'package:flutter/material.dart';
+
+import 'package:clean_settings_nnbd/clean_settings_nnbd.dart';
+// import 'package:clean_settings/clean_settings.dart';
 
 class SettingTimeItem extends StatelessWidget {
   final String title;
