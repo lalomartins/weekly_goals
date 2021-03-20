@@ -1,10 +1,12 @@
-import 'package:card_settings/card_settings.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
+import 'package:clean_settings/clean_settings.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 
 import 'config.dart';
+import 'widgets/setting_radio_item_smart.dart';
+import 'widgets/setting_time_item.dart';
 
 class SettingsScreen extends StatelessWidget {
   @override
@@ -18,82 +20,76 @@ class SettingsForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return Form(
         child: Consumer<PackageInfo>(
-      builder: (_, packageInfo, __) => CardSettings.sectioned(
-        showMaterialonIOS: true,
-        children: [
-          CardSettingsSection(
-            header: CardSettingsHeader(label: 'General'),
-            children: [
-              CardSettingsTimePicker(
-                label: 'Day start',
-                initialValue: config.dayStartTime,
-                icon: Icon(Icons.bedtime),
+      builder: (_, packageInfo, __) => SettingContainer(
+        sections: [
+          SettingSection(
+            items: [
+              SettingTimeItem(
+                title: 'Day start',
+                initialTime: config.dayStartTime,
                 onChanged: (value) => config.dayStartTime = value,
               ),
-              CardSettingsSelectionPicker(
-                label: 'Week start',
-                options: [
-                  'Sunday',
-                  'Monday',
-                  'Tuesday',
-                  'Wednesday',
-                  'Thursday',
-                  'Friday',
-                  'Saturday',
+              SettingRadioItemSmart<int>(
+                title: 'Week start',
+                items: [
+                  SettingRadioValue('Sunday', 1),
+                  SettingRadioValue('Monday', 2),
+                  SettingRadioValue('Tuesday', 3),
+                  SettingRadioValue('Wednesday', 4),
+                  SettingRadioValue('Thursday', 5),
+                  SettingRadioValue('Friday', 6),
+                  SettingRadioValue('Saturday', 0)
                 ],
-                values: ['1', '2', '3', '4', '5', '6', '0'],
-                initialValue: config.weekStartsOn.toString(),
-                onChanged: (value) => config.weekStartsOn = int.parse(value),
+                selectedValue: config.weekStartsOn,
+                onChanged: (value) => config.weekStartsOn = value,
               ),
             ],
           ),
-          CardSettingsSection(
-            header: CardSettingsHeader(label: 'Appearance'),
-            children: [
-              CardSettingsSelectionPicker(
-                label: 'Theme',
-                options: [
-                  'System Default',
-                  'Dark',
-                  'Light',
+          SettingSection(
+            title: 'Appearance',
+            items: [
+              SettingRadioItemSmart<String>(
+                title: 'Theme',
+                items: [
+                  SettingRadioValue('System Default', 'ThemeMode.system'),
+                  SettingRadioValue('Dark', 'ThemeMode.dark'),
+                  SettingRadioValue('Light', 'ThemeMode.light')
                 ],
-                values: ['ThemeMode.system', 'ThemeMode.dark', 'ThemeMode.light'],
-                initialValue: config.themeMode.toString(),
+                selectedValue: config.themeMode.toString(),
                 onChanged: config.setThemeMode,
               ),
-              CardSettingsSwitch(
-                label: 'Full screen',
-                initialValue: config.fullscreen,
+              SettingSwitchItem(
+                title: 'Full screen',
+                value: config.fullscreen,
                 onChanged: (value) => config.fullscreen = value,
+                description:
+                    'If this is enabled but the app is not fullscreen, try going to the app switcher, and switching back here.',
               ),
             ],
           ),
-          CardSettingsSection(
-            header: CardSettingsHeader(label: 'Server'),
-            children: [
-              CardSettingsText(
-                label: 'Address',
+          SettingSection(
+            title: 'Server',
+            items: [
+              SettingTextItem(
+                title: 'Address',
                 initialValue: config.serverAddress,
-                maxLength: 255,
-                autocorrect: false,
+                displayValue: config.serverAddress,
                 onChanged: (value) {
                   config.serverAddress = value;
                 },
               ),
-              CardSettingsText(
-                label: 'Account',
+              SettingTextItem(
+                title: 'Account',
                 initialValue: config.serverAccount,
-                maxLength: 255,
-                autocorrect: false,
+                displayValue: config.serverAccount,
                 onChanged: (value) {
                   config.serverAccount = value;
                 },
               ),
-              CardSettingsText(
-                label: 'Authentication token',
+              SettingTextItem(
+                title: 'Authentication token',
                 initialValue: config.serverToken,
-                maxLength: 255,
-                autocorrect: false,
+                displayValue: '·' * (config.serverToken?.length ?? 0),
                 onChanged: (value) {
                   config.serverToken = value;
                 },

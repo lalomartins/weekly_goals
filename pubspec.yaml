@@ -20,7 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  card_settings: ^1.16.3
+  clean_settings: ^0.1.5
   expire_cache: ^1.0.7
   flushbar: ^1.10.4
   flutter_native_timezone: ^1.0.4

@@ -71,7 +71,7 @@ class DrawerMenu extends StatelessWidget {
         ListTile(
           title: Text('Sync to cloud'),
           subtitle: Text('Warning: work in progress, very slow'),
-          enabled: config.serverAddress.isNotEmpty && config.serverAccount.isNotEmpty && config.serverToken.isNotEmpty,
+          enabled: (config.serverAddress?.isNotEmpty ?? false) && (config.serverAccount?.isNotEmpty ?? false) && (config.serverToken?.isNotEmpty ?? false),
           leading: Icon(Icons.sync),
           onTap: () => sync(context),
         ),
