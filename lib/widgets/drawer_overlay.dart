@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class DrawerOverlay extends StatelessWidget {
@@ -10,8 +12,9 @@ class DrawerOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context);
     return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 400),
+      constraints: BoxConstraints(maxWidth: min(400, mq.size.width * .8)),
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).dialogBackgroundColor,
