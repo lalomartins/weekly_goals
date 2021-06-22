@@ -377,7 +377,7 @@ packages:
       name: moor
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.2.0"
+    version: "4.3.2"
   moor_generator:
     dependency: "direct dev"
     description:
@@ -599,7 +599,7 @@ packages:
       name: sqlite3_flutter_libs
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.0"
+    version: "0.5.0"
   sqlparser:
     dependency: transitive
     description:
