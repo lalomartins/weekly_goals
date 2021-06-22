@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:grpc/grpc.dart';
 import 'package:moor/moor.dart';
-import 'package:timezone/timezone.dart' as tz;
 import 'package:uuid/uuid.dart';
 
 import 'config.dart';
+import 'date_util.dart';
 import 'db.dart';
 import 'generated/google/protobuf/timestamp.pb.dart';
 import 'generated/service.pbgrpc.dart';
@@ -95,7 +95,7 @@ class ServerClient {
           ..timestamp = Timestamp.fromDateTime(e.timestamp)
           ..timezone = (pbTypes.Timezone()
             ..name = e.timezone
-            ..offset = tz.getLocation(e.timezone).timeZone(e.timestamp.millisecondsSinceEpoch).offset ~/ 1000)
+            ..offset = timeZone(e.timezone, e.timestamp.millisecondsSinceEpoch).offset ~/ 1000)
           ..realTime = e.realTime
           ..additionalYaml = e.additional);
     }));
